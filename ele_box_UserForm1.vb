@@ -39,6 +39,14 @@
 ' End Sub
 
 
+Public global_length As Double
+Public global_width As Double
+Public global_depth As Double
+Public global_thickness As Double
+Public global_material As String
+Public global_num_gauge As Double
+
+
 Public Sub AddRectCircles(ByVal start, ByVal radius, ByVal length, ByVal width)
     Dim p(2)  As Double
     Dim cir_obj As AcadCircle
@@ -297,42 +305,82 @@ Public Sub AddTwoCrossRects(ByVal start, ByVal length, ByVal width, ByVal l1, By
 End Sub
 
 
-Public Sub up_board(ByVal start, ByVal length, ByVal width)
-    ' Dim start(2) ' 宣告2x2陣列用於儲存所有長方形兩頂點
-    Dim ends(2) ' 宣告2x2陣列用於儲存所有長方形兩頂點
-    Dim fold_lens(2, 1) As Double ' 宣告3x2陣列用於儲存所有折線間距
-    Dim a_start(2) As Double, a_end(2) As Double, b_start(2) As Double, b_end(2) As Double
-
-    l1 = 10: l2 = 10: w1 = 0: w2 = 12 ' 連接處
+Public Sub up_board(ByVal start, ByVal length, ByVal width, ByVal depth, ByVal thickness)
+    ' 鈑金
+    ' 螺絲孔
+    
+    
+    Dim line_obj As AcadLine
+    Dim p1(2) as Double, p2(2) as Double
+    l1 = 15: l2 = 49.5: l3 = 12
     a1 = 32: a2 = 20 ' 折線間距
-    b1 = 20: b2 = 10: b3 = 10
-    v1 = 52.5
-    v2 = 12
-    start(1) = start(1) + a1 + a2 + b1 + b2 + b3
-    AddTwoCrossRects start, length, width - (a1 + a2 + b1 + b2 + b3), l1, l2, w1, w2
-    ends(0) = start(0) + l1 + l2: ends(1) = start(1) + w1 + w2
-    start(0) = start(0) + length - w2 - 3
-    AddConnect start, ends, 15, 49.5, 597, a1 + a2, b1 + b2 + b3
-    ' a_start(0) = start(0) + v2: a_start(1) = start(1) + a1 + a2 + b1 + b2 + b3
-    ' a_end(0) = start(0) + length - v2: a_end(1) = start(1) + b1 + b2 + b3
-    ' b_start(0) = start(0) + v2 + v1: b_start(1) = a_end(1)
-    ' b_end(0) = start(0) + length - v1 - v2: b_end(1) = start(1)
+    b1 = 22: b2 = 10: b3 = 10
+    w2 = 12
+    c = 3
+    edge_l1 = 5: edge_w1 = 28
+    y1 = 450: y2 = 619
 
-    ' a_start(0) = 1000: a_start(1) = 1000
-    ' a_end(0) = 1800: a_end(1) = 600
-    ' b_start(0) = 1200: b_start(1) = 600
-    ' b_end(0) = 1600: b_end(1) = 200
+    p1(0) = start(0) + l1: p1(1) = start(1) + b1 + b2 + b3
+    AddHill p1, a1+a2, depth+thickness, w2, l1, l3, "v_flip"
+    AddHill p1, l2, length-2*(l1+l2), l2, b1+b2, b1+b2, "h_flip"
+    p2(0) = p1(0) + length - 2*l1: p2(1) = p1(1)
+    AddHill p2, a1+a2, depth+thickness, w2, l1, l3, "v"
+    p1(0) = p1(0) - c: p1(1) = p1(1) + a1+a2 + depth+thickness + w2
+    p2(0) = p2(0) + c: p2(1) = p2(1) + a1+a2 + depth+thickness + w2
+    
+    Set line_obj = ThisDrawing.ModelSpace.AddLine(p1, p2)
+    
+    ' 連接螺絲孔
+    r = 2
+    edge_l1 = 5: edge_w1 = 28
+    edge_l2 = (length-y1)/2 - l3: edge_w2 = 5
+    p1(0) = start(0) + edge_l1: p1(1) = start(1) + edge_w1 + (a1+a2+b1+b2+b3)
+    AddLinedCircles p1, r, length-2*edge_l1, 2, 0
+    p1(0) = start(0) + l3 + edge_l2: p1(1) = start(1) + width - edge_w2
+    AddLinedCircles p1, r, y1, 2, 0
 
-    ' starts(0) = a_start: starts(1) = b_start
-    ' ends(0) = a_end: ends(1) = b_end
-    ' fold_lens(0, 0) = a1: fold_lens(1, 0) = a2
-    ' ' fold_lens(0, 1) = b1: fold_lens(1, 1) = b2: fold_lens(2, 1) = b3
+    ' 門板轉軸孔
+    r = 3.5
+    edge_l1 = 41.5: edge_w1 = 5
+    p1(0) = start(0) + l3 + c + edge_l1: p1(1) = start(1) + (a2+b1+b2+b3) - edge_w1
+    AddLinedCircles p1, r, y2, 2, 0
 
-    ' Dim ss(1)
-    ' ss(0) = start(0): ss(1) = start(1) + a1 + a2 + b1 + b2 + b3
-    ' AddTwoCrossRects ss, length, width, l1, l2, 0, w2
-    ' AddConnect starts, ends, fold_lens
-    ' ByVal start, ByVal end, ByVal l1, ByVal l2, ByVal l3, ByVal w1, ByVal w2
+End Sub
+
+
+Public Sub bottom_board(ByVal start, ByVal length, ByVal width, ByVal depth, ByVal thickness)
+    ' 鈑金
+    Dim line_obj As AcadLine
+    Dim p1(2) as Double, p2(2) as Double
+    l1 = 10: l2 = 50: l3 = 10
+    a1 = 30: a2 = 20 ' 折線間距
+    b1 = 10: b2 = 10
+    w2 = 10
+    y1 = 450: y2 = 619
+
+    p1(0) = start(0) + l1: p1(1) = start(1) + b1 + b2
+    AddHill p1, a1+a2, depth-2*thickness, w2, l1, l3, "v_flip"
+    AddHill p1, l2, length-2*(l1+l2), l2, b1+b2, b1+b2, "h_flip"
+    p2(0) = p1(0) + length - 2*l1: p2(1) = p1(1)
+    AddHill p2, a1+a2, depth-2*thickness, w2, l1, l3, "v"
+    p1(1) = p1(1) + a1+a2 + depth-2*thickness + w2
+    p2(1) = p2(1) + a1+a2 + depth-2*thickness + w2
+    Set line_obj = ThisDrawing.ModelSpace.AddLine(p1, p2)
+    
+    ' 連接螺絲孔
+    r = 2
+    edge_l1 = 5: edge_w1 = 28
+    edge_l2 = (length-y1)/2 - l3: edge_w2 = 2
+    p1(0) = start(0) + edge_l1: p1(1) = start(1) + edge_w1 + (a1+a2+b1+b2)
+    AddLinedCircles p1, r, length-2*edge_l1, 2, 0
+    p1(0) = start(0) + l3 + edge_l2: p1(1) = start(1) + width - edge_w2
+    AddLinedCircles p1, r, y1, 2, 0
+
+    ' 門板轉軸孔
+    r = 3.5
+    edge_l1 = 39: edge_w1 = 5
+    p1(0) = start(0) + l3 + edge_l1: p1(1) = start(1) + (a2+b1+b2) - edge_w1
+    AddLinedCircles p1, r, y2, 2, 0
 End Sub
 
 
@@ -356,20 +404,14 @@ Public Sub inner_board(ByVal start, ByVal length, ByVal width)
     r = 5 ' 半徑
     range = 15 '螺絲孔距離
     center(0) = start(0) + v1 + range: center(1) = start(1) + v1 + range
-    Set cir_obj = ThisDrawing.ModelSpace.AddCircle(center, r) ' 畫圓
-    center(0) = start(0) + v1 + range: center(1) = start(1) + v1 + range + in_width - 2 * range
-    Set cir_obj = ThisDrawing.ModelSpace.AddCircle(center, r)
-    center(0) = start(0) + v1 + range + in_length - 2 * range: center(1) = start(1) + v1 + range + in_width - 2 * range
-    Set cir_obj = ThisDrawing.ModelSpace.AddCircle(center, r)
-    center(0) = start(0) + v1 + range + in_length - 2 * range: center(1) = start(1) + v1 + range
-    Set cir_obj = ThisDrawing.ModelSpace.AddCircle(center, r)
+    AddRectCircles center, r, length-2*(v1+range), width-2*(v1+range)
 End Sub
 
 
 Public Sub padding_board(ByVal start, ByVal length, ByVal width, ByVal v1, ByVal c1, ByVal c2)
     Dim p1(2)  As Double
     Dim p2(2)  As Double
-    Dim line_obj As AcadDimAligned
+    Dim line_obj As AcadLine
 
     l1 = c1 + v1
     w1 = c2
@@ -442,44 +484,61 @@ Public Sub door(ByVal start, ByVal length, ByVal width)
     
     Dim p1(2)  As Double
 
-    s1 = start(0): s2 = start(1) ' 作圖起始點
     l1 = 19
     l2 = 12
     w1 = 14
     w2 = 14
+
     v2 = 14
     v3 = 12
     v4 = 5
-    v5 = 9
+    v5 = 9.06
     v6 = 35
+
     v7 = 23 ' 手把 長
     v8 = 62 ' 手把 寬
+
     v9 = (width - v8) / 2 - v2
     in_length = length - l1 - l2
     in_width = width - w1 - w2
     v10 = (in_width - v8) / 2
+    v11 = 1 ' 手把與孔間距
+    door_dist = 30
+    range = 8 ' 配電箱 門開關順利所預留間隙
+
+    start(0) = start(0): start(1) = start(1)
+    length = length - 2 * door_dist - range + l1 + l2
+    width = width - 2 * door_dist - range + w1 + w2
 
     ' 鈑金
     AddTwoCrossRects start, length, width, l1, l2, w1, w2
-    p1(0) = s1 + l1 + v6: p1(1) = s2 + w2 + v10
+    p1(0) = start(0) + l1 + v6: p1(1) = start(1) + w2 + v10
     AddRect p1, v7, v8
 
     ' 螺絲孔
     r = 4 ' 半徑
-    center(0) = s1 + length - l2 - v4: center(1) = s2 + v5
-    Set cir_obj = ThisDrawing.ModelSpace.AddCircle(center, r) ' 畫圓
-    center(0) = s1 + length - l2 - v4: center(1) = s2 + width - v5
-    Set cir_obj = ThisDrawing.ModelSpace.AddCircle(center, r)
-
+    center(0) = start(0) + length - l2 - v4: center(1) = start(1) + v5
+    AddLinedCircles center, r, width-2*v5, 2, 1
     r = 3.5 ' 半徑
-    center(0) = s1 + l1 + v6 + 0.5 * v7: center(1) = s2 + v2 + v9 - r
-    Set cir_obj = ThisDrawing.ModelSpace.AddCircle(center, r) ' 畫圓
-    center(0) = s1 + l1 + v6 + 0.5 * v7: center(1) = s2 + v2 + v9 + v8 + r
-    Set cir_obj = ThisDrawing.ModelSpace.AddCircle(center, r)
+    center(0) = start(0) + l1 + v6 + 0.5 * v7: center(1) = start(1) + w1 + v10 - v11 - r
+    AddLinedCircles center, r, v8+2*(r+v11), 2, 1
+
+    ' ' 副標題
+    ' start(1) = start(1) - dim_dist - text_dist
+    ' comp_title = thickness & "  " & material & "     " & length & " X " & width & "  門板"
+    ' ThisDrawing.ModelSpace.AddText comp_title, start, text_height
 End Sub
 
 
-Public Sub main_part(ByVal start, ByVal length, ByVal width, ByVal depth, ByVal main_length)
+Public Sub main_part(ByVal start)
+    main_length = global_length
+    length = global_length + 2 * gloabl_depth + 2 * (30 + 20 + 20 + 10)
+    width = global_width
+    depth = global_depth
+
+    comp_title = main_length & "--" & gloabl_length & "--" & width & "--" & depth & "--" & global_thickness
+    ThisDrawing.ModelSpace.AddText comp_title, start, 40
+
     ' 主體
     Dim line_obj As AcadLine
     Dim p1(2)  As Double
@@ -505,14 +564,22 @@ Public Sub main_part(ByVal start, ByVal length, ByVal width, ByVal depth, ByVal 
     AddHill p1, 200, v4, v2, 50, v3, "h_flip"
 
     ' 螺絲孔
-    ' r = 2
-    ' p = 
-    ' AddRectCircles p, r, length, width
-    ' AddRectCircles p, r, length, width
+    ' 配電盤螺絲
     ' r = 5
-    ' p = 
+    ' p1(0) = start(0) + depth + : p1(1) = start(1) + v3
     ' l = 1: w = 
-    ' AddRectCircles p, r, l, w
+    ' AddRectCircles p1, r, l, w
+
+    ' 上下板螺絲
+    r = 2
+    edge_l1 = 29: edge_w1 = 6
+    edge_l2 = 125
+    y1 = 450
+    p1(0) = start(0) + edge_l1 + v1 + v2: p1(1) = start(1) + edge_w1
+    AddRectCircles p1, r, main_length+2*depth-2*edge_l1, width-2*edge_w1
+    p1(0) = p1(0) + depth - edge_l1 + edge_l2
+    AddRectCircles p1, r, y1, width-2*edge_w1
+    
 
     ' 折線
 
@@ -525,6 +592,62 @@ Public Sub main_part(ByVal start, ByVal length, ByVal width, ByVal depth, ByVal 
 
 
 End Sub
+
+
+' Public Sub main_part(ByVal start, ByVal length, ByVal width, ByVal depth, ByVal main_length)
+'     ' 主體
+'     Dim line_obj As AcadLine
+'     Dim p1(2)  As Double
+'     Dim p2(2)  As Double
+'     Dim ends(2)  As Double
+'     v1 = 10
+'     v2 = 70
+'     v3 = 32
+'     v4 = depth + (length - 200) / 2
+'     v4 = 430
+'     dim_dist = 200
+'     text_height = 40: arrow_size = 20
+
+'     ' 鈑金
+'     p1(0) = start(0) + v1: p1(1) = start(1) + v3
+'     AddHill p1, v2, v4, 200, v3, 50, "h_flip"
+'     AddHill p1, 14, 447, 25, v1, v1, "v_flip"
+'     p1(1) = p1(1) + 14 + 25 + 447 ' TODO: 14 + 25 + 447=486
+'     AddHill p1, v2, main_length + 2 * depth, v2, v3, v3, "h"
+'     p1(0) = p1(0) + length - 2 * v1: p1(1) = p1(1) - 486
+'     AddHill p1, 14, 447, 25, v1, v1, "v"
+'     p1(0) = p1(0) - v4 - v2 - 200: p1(1) = p1(1) + (50 - v3)
+'     AddHill p1, 200, v4, v2, 50, v3, "h_flip"
+
+'     ' 螺絲孔
+'     ' 配電盤螺絲
+'     ' r = 5
+'     ' p1(0) = start(0) + depth + : p1(1) = start(1) + v3
+'     ' l = 1: w = 
+'     ' AddRectCircles p1, r, l, w
+
+'     ' 上下板螺絲
+'     r = 2
+'     edge_l1 = 29: edge_w1 = 6
+'     edge_l2 = 125
+'     y1 = 450
+'     p1(0) = start(0) + edge_l1 + v1 + v2: p1(1) = start(1) + edge_w1
+'     AddRectCircles p1, r, main_length+2*depth-2*edge_l1, width-2*edge_w1
+'     p1(0) = p1(0) + depth - edge_l1 + edge_l2
+'     AddRectCircles p1, r, y1, width-2*edge_w1
+    
+
+'     ' 折線
+
+
+
+'     ' 標註
+'     ' SelectActiveLayer "主尺寸"
+'     ' h1 = 
+'     ' AddMainDims h1, h2, dim_dist, "down", v1, v2, dim_dist, "left", text_height, arrow_size
+
+
+' End Sub
 
 
 Public Sub electrical_box(ByVal length, ByVal width, ByVal thickness, _
@@ -550,12 +673,12 @@ Public Sub electrical_box(ByVal length, ByVal width, ByVal thickness, _
     Dim in_borad_length As Double, in_borad_width As Double
     start(0) = 1000: start(1) = 1000
 
-    length = 700
-    width = 550
-    num_gauge = 4
-    thickness = 1
-    
-    depth = 180
+    global_length = 700
+    global_width = 550
+    global_num_gauge = 4
+    global_thickness = 1
+
+    global_depth = 180
     dim_dist = 100
     text_dist = 100
     text_height = 40
@@ -568,17 +691,21 @@ Public Sub electrical_box(ByVal length, ByVal width, ByVal thickness, _
     ' 配電箱 主體
     ' 圖面
     comp_start(0) = start(0): comp_start(1) = start(1) + 1500
-    comp_length = length + 2 * depth + 2 * (30 + 20 + 20 + 10)
-    comp_width = width
-    main_part comp_start, comp_length, comp_width, depth, length
-    ' 文字
-    comp_start(1) = comp_start(1) - dim_dist - text_dist
-    comp_title = thickness & "  " & material & "     " & comp_length & " X " & comp_width & "  主板金"
-    ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
+    main_part comp_start
 
-    comp_start(1) = comp_start(1) + comp_width + 500
-    comp_title = length & " X " & width & "  配電盒 (上蓋外包)"
-    ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
+
+    ' comp_start(0) = start(0): comp_start(1) = start(1) + 1500
+    ' comp_length = length + 2 * depth + 2 * (30 + 20 + 20 + 10)
+    ' comp_width = width
+    ' main_part comp_start, comp_length, comp_width, depth, length
+    ' ' 文字
+    ' comp_start(1) = comp_start(1) - dim_dist - text_dist
+    ' comp_title = thickness & "  " & material & "     " & comp_length & " X " & comp_width & "  主板金"
+    ' ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
+
+    ' comp_start(1) = comp_start(1) + comp_width + 500
+    ' comp_title = length & " X " & width & "  配電盒 (上蓋外包)" & thickness
+    ' ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
 
     ' 配電箱 門
     comp_start(0) = start(0): comp_start(1) = start(1)
@@ -590,6 +717,8 @@ Public Sub electrical_box(ByVal length, ByVal width, ByVal thickness, _
     comp_title = thickness & "  " & material & "     " & comp_length & " X " & comp_width & "  門板"
     ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
 
+    ' door start, length, width, thickness, material, text_height
+
     ' 配電箱 內板
     comp_start(0) = start(0) + 1000: comp_start(1) = start(1)
     comp_length = length
@@ -598,21 +727,27 @@ Public Sub electrical_box(ByVal length, ByVal width, ByVal thickness, _
     comp_title = thickness & "  " & material & "     " & comp_length & " X " & comp_width & "  配電盤"
     ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
     
-
     ' 配電箱 上板
-    ' a1 = 32: a2 = 20 ' 折線間距
-    ' b1 = 20: b2 = 10: b3 = 10
-    ' w2 = 12
-    ' comp_start(0) = start(0) + 2000: comp_start(1) = start(1) + 1500
-    ' comp_length = length + 2 * (thickness + 12)
-    ' comp_width = depth + thickness + (a1 + a2 + b1 + b2 + b3 + w2)
-    ' up_board comp_start, comp_length, comp_width
-    ' comp_start(1) = comp_start(1) - dim_dist - text_dist
-    ' comp_title = thickness & "  " & material & "     " & comp_length & " X " & comp_width
-    ' ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
+    ' TODO: thickness or t 用鈑厚還是校正係數1
+    a1 = 32: a2 = 20 ' 折線間距
+    b1 = 22: b2 = 10: b3 = 10
+    w2 = 12
+    comp_start(0) = start(0) + 2000: comp_start(1) = start(1) + 2000
+    comp_length = length + 2 * (thickness + 12)
+    comp_width = depth + thickness + (a1 + a2 + b1 + b2 + b3 + w2)
+    up_board comp_start, comp_length, comp_width, depth, thickness
+    comp_start(1) = comp_start(1) - dim_dist - text_dist
+    comp_title = thickness & "  " & material & "     " & comp_length & " X " & comp_width & "  上板"
+    ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
 
     ' 配電箱 底板
-    ' bottom_board start, 717, 258
+    comp_start(0) = start(0) + 2000: comp_start(1) = start(1) + 1300
+    comp_length = 717
+    comp_width = 258
+    bottom_board comp_start, comp_length, comp_width, depth, thickness
+    comp_start(1) = comp_start(1) - dim_dist - text_dist
+    comp_title = thickness & "  " & material & "     " & comp_length & " X " & comp_width & "  底板"
+    ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
 
     ' 配電箱 錶板 *
     l1 = 15
@@ -653,12 +788,19 @@ End Sub
 Private Sub CommandButton1_Click()
     UserForm1.Hide
 
-    length = Val(TextBox1.Text)
-    width = Val(TextBox2.Text)
-    thickness = Val(TextBox3.Text)
-    material = TextBox4.Text
-    num_gauge = Val(TextBox5.Text)
-    electrical_box length, width, thickness, material, num_gauge
+    t1 = Val(TextBox1.Text)
+    t2 = Val(TextBox2.Text)
+    t3 = Val(TextBox3.Text)
+    t4 = TextBox4.Text
+    t5 = Val(TextBox5.Text)
+
+    global_length = t1
+    global_width = t2
+    global_thickness = t3
+    global_material = t4
+    global_num_gauge = t5
+
+    electrical_box global_length, global_width, global_thickness, global_material, global_num_gauge
 End Sub
 
 
