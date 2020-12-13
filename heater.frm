@@ -1,3 +1,18 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserForm1 
+   Caption         =   "UserForm1"
+   ClientHeight    =   9168.001
+   ClientLeft      =   108
+   ClientTop       =   456
+   ClientWidth     =   10812
+   OleObjectBlob   =   "heater.frx":0000
+   StartUpPosition =   1  '©ÒÄİµøµ¡¤¤¥¡
+End
+Attribute VB_Name = "UserForm1"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
 
 
 
@@ -22,8 +37,8 @@ Public screw_dist As Double
 Public num_part_screw As Double
 Public is_expand As String
 Public in_sb_d As Double
-Public out_sb_in_d As Double ' å¤–ç«¯æ¿ç©¿é¢å­”å¾‘
-Public out_sb_out_d As Double ' å¤–ç«¯æ¿ç„Šé¢å­”å¾‘
+Public out_sb_in_d As Double ' ¥~ºİªO¬ï­±¤Õ®|
+Public out_sb_out_d As Double ' ¥~ºİªO²k­±¤Õ®|
 
 Public text_height As Double
 Public text_dist As Double
@@ -81,15 +96,15 @@ Public Sub AddLinedCircles(ByVal start, ByVal radius, ByVal distance, ByVal num_
         Set cir_obj = ThisDrawing.ModelSpace.AddCircle(c, radius)
 
         If text_dir > 0 Then
-            SelectActiveLayer "å°ºå¯¸"
+            SelectActiveLayer "¨ä¥L¤Ø¤o"
             If text_dir = 0 Then
-                text_loc(0) = c(0) + text_dist: text_loc(1) = (c(1)+c2(1))/2
+                text_loc(0) = c(0) + text_dist: text_loc(1) = (c(1) + c2(1)) / 2
             ElseIf text_dir = 1 Then
-                text_loc(0) = (c(0)+c2(0))/2: text_loc(1) = c(1) + text_dist
+                text_loc(0) = (c(0) + c2(0)) / 2: text_loc(1) = c(1) + text_dist
             ElseIf text_dir = 2 Then
-                text_loc(0) = c(0) - text_dist: text_loc(1) = (c(1)+c2(1))/2
+                text_loc(0) = c(0) - text_dist: text_loc(1) = (c(1) + c2(1)) / 2
             ElseIf text_dir = 3 Then
-                text_loc(0) = (c(0)+c2(0))/2: text_loc(1) = c(1) - text_dist
+                text_loc(0) = (c(0) + c2(0)) / 2: text_loc(1) = c(1) - text_dist
             End If
             ' text_loc(0) = (c(0)+c2(0))/2
             Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(c, c2, text_loc)
@@ -105,26 +120,26 @@ End Sub
 Public Sub AddFinCircles(ByVal start, ByVal num_row, ByVal num_stick, ByVal row_dist, _
                          ByVal stick_dist, ByVal diameter)
     Dim start2(2)  As Double
-    start2(0) = start(0) + row_dist: start2(1) = start(1) - stick_dist/2
+    start2(0) = start(0) + row_dist: start2(1) = start(1) - stick_dist / 2
 
 
     For i = 1 To num_row
         If i Mod 2 = 1 Then
-            AddLinedCircles start, diameter/2, stick_dist, num_stick, 1
-            start(0) = start(0) + 2*row_dist
+            AddLinedCircles start, diameter / 2, stick_dist, num_stick, 1
+            start(0) = start(0) + 2 * row_dist
         Else:
-            AddLinedCircles start2, diameter/2, stick_dist, num_stick, 1
-            start2(0) = start2(0) + 2*row_dist
+            AddLinedCircles start2, diameter / 2, stick_dist, num_stick, 1
+            start2(0) = start2(0) + 2 * row_dist
         End If
     Next
 End Sub
 
 
 Public Sub SelectActiveLayer(ByVal layer_name)
-    For Each lay0 In ThisDrawing.Layers ' åœ¨æ‰€æœ‰çš„åœ–å±¤ä¸­é€²è¡Œå¾ªç’°
-        If lay0.Name = layer_name Then ' å¦‚æœæ‰¾åˆ°åœ–å±¤å
-            ThisDrawing.ActiveLayer = lay0 ' è¨­å®šåœ–å±¤ç‚ºç•¶å‰åœ–å±¤
-            Exit For ' çµæŸå°‹æ‰¾
+    For Each lay0 In ThisDrawing.Layers ' ¦b©Ò¦³ªº¹Ï¼h¤¤¶i¦æ´`Àô
+        If lay0.Name = layer_name Then ' ¦pªG§ä¨ì¹Ï¼h¦W
+            ThisDrawing.ActiveLayer = lay0 ' ³]©w¹Ï¼h¬°·í«e¹Ï¼h
+            Exit For ' µ²§ô´M§ä
         End If
     Next lay0
 End Sub
@@ -207,7 +222,7 @@ Public Sub AddHill(ByVal start, ByVal l1, ByVal l2, ByVal l3, ByVal w1, ByVal w2
         Set line_obj = ThisDrawing.ModelSpace.AddLine(p4, p5)
         Set line_obj = ThisDrawing.ModelSpace.AddLine(p5, p6)
 
-        For i = 0 to 4
+        For i = 0 To 4
             If add_dim(i) = 1 Then
                 t(0) = (p1(0) + p2(0)) / 2: t(1) = p1(0) + dim_dist1
                 Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p2, t)
@@ -242,7 +257,7 @@ Public Sub AddHill(ByVal start, ByVal l1, ByVal l2, ByVal l3, ByVal w1, ByVal w2
         Set line_obj = ThisDrawing.ModelSpace.AddLine(p4, p5)
         Set line_obj = ThisDrawing.ModelSpace.AddLine(p5, p6)
 
-        SelectActiveLayer "å°ºå¯¸"
+        SelectActiveLayer "¨ä¥L¤Ø¤o"
         t(0) = p3(0) - dim_dist1: t(1) = (p2(1) + p3(1)) / 2
         Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p2, p3, t)
         AcadDimAligned.TextHeight = text_height
@@ -304,16 +319,16 @@ Public Sub AddHill(ByVal start, ByVal l1, ByVal l2, ByVal l3, ByVal w1, ByVal w2
         Set line_obj = ThisDrawing.ModelSpace.AddLine(p1, p2)
     End If
 
-    SelectActiveLayer "éˆ‘é‡‘"
+    SelectActiveLayer "¶zª÷"
 End Sub
 
 
 Public Sub AddArcwithLines(ByVal center, ByVal radius, ByVal max_dist)
-	Dim arcObj As AcadArc
-	Dim startAngleInDegree As Double
-	Dim endAngleInDegree As Double
+    Dim arcObj As AcadArc
+    Dim startAngleInDegree As Double
+    Dim endAngleInDegree As Double
     Dim p1(2) As Double, p2(2) As Double
-    x = (max_dist - radius*2) / 2
+    x = (max_dist - radius * 2) / 2
 
     ' Add side lines
     p1(0) = center(0) - radius: p1(1) = center(1) - x
@@ -324,19 +339,19 @@ Public Sub AddArcwithLines(ByVal center, ByVal radius, ByVal max_dist)
     Set line_obj = ThisDrawing.ModelSpace.AddLine(p1, p2)
 
     ' Add arc
-	' Define the circle
-	startAngleInDegree = 180
-	endAngleInDegree = 0
+    ' Define the circle
+    startAngleInDegree = 180
+    endAngleInDegree = 0
 
-	' Convert the angles in degrees to angles in radians
-	startAngleInRadian = startAngleInDegree * 3.141592 / 180
-	endAngleInRadian = endAngleInDegree * 3.141592 / 180
+    ' Convert the angles in degrees to angles in radians
+    startAngleInRadian = startAngleInDegree * 3.141592 / 180
+    endAngleInRadian = endAngleInDegree * 3.141592 / 180
 
-	' Create the arc object in model space
+    ' Create the arc object in model space
     p1(0) = center(0): p1(1) = center(1) - x
-	Set arcObj = ThisDrawing.ModelSpace.AddArc(p1, radius, startAngleInRadian, endAngleInRadian)
+    Set arcObj = ThisDrawing.ModelSpace.AddArc(p1, radius, startAngleInRadian, endAngleInRadian)
     p1(0) = center(0): p1(1) = center(1) + x
-	Set arcObj = ThisDrawing.ModelSpace.AddArc(p1, radius, endAngleInRadian, startAngleInRadian)
+    Set arcObj = ThisDrawing.ModelSpace.AddArc(p1, radius, endAngleInRadian, startAngleInRadian)
 End Sub
 
 
@@ -366,8 +381,7 @@ End Sub
 
 
 Public Sub AddTwoCrossRects(ByVal start, ByVal length, ByVal width, ByVal l1, ByVal l2, _
-                            ByVal w1, ByVal w2, Optional dim_dist, Optional text_height, _
-                            Optional arrow_size)
+                            ByVal w1, ByVal w2, Optional text_height, Optional arrow_size)
     
     Dim start_r1(2)  As Double, start_r2(2)  As Double
     Dim a(2)  As Double, b(2)  As Double, c(2)  As Double, d(2)  As Double, _
@@ -379,6 +393,11 @@ Public Sub AddTwoCrossRects(ByVal start, ByVal length, ByVal width, ByVal l1, By
     in_length = length - l1 - l2
     in_width = width - w1 - w2
     
+    ' TODO: °Ñ¼Æ©Ô¥X¥h
+    ' TODO: dimension in right position
+    ' text_height = 25
+    ' arrow_size1 = 20
+    ' dim_dist1 = 100
     a(0) = start_r2(0) + in_length: a(1) = start_r2(1)
     b(0) = start_r2(0) + in_length: b(1) = start_r1(1)
     c(0) = start_r2(0) + in_length + l2: c(1) = start_r1(1)
@@ -389,21 +408,24 @@ Public Sub AddTwoCrossRects(ByVal start, ByVal length, ByVal width, ByVal l1, By
     h(0) = start_r1(0) + l1: h(1) = start_r1(1) + in_width
     i(0) = start_r1(0): i(1) = start_r1(1) + in_width
 
-    ' t1(0) = start_r1(0) + 0.5 * length: t1(1) = start_r1(1) - dim_dist - w1
-    ' t2(0) = start_r2(0) - dim_dist - l1: t2(1) = start_r2(1) + 0.5 * width
-    t3(0) = start_r1(0) + length + dim_dist: t3(1) = start_r2(1) + 0.5 * w1
-    t4(0) = start_r1(0) + length + dim_dist: t4(1) = start_r2(1) + w1 + 0.5 * in_width
-    t5(0) = start_r1(0) + length + dim_dist: t5(1) = start_r2(1) + w1 + in_width + 0.5 * w2
-    t6(0) = start_r1(0) + 0.5 * l1 + in_length + 0.5 * l2: t6(1) = start_r2(1) + width + dim_dist
-    t7(0) = start_r1(0) + l1 + 0.5 * in_length: t7(1) = start_r2(1) + width + dim_dist
-    t8(0) = start_r1(0) + 0.5 * l1 - 50: t8(1) = start_r2(1) + width + dim_dist
+    ' t1(0) = start_r1(0) + 0.5 * length: t1(1) = start_r1(1) - dim_dist1 - w1
+    ' t2(0) = start_r2(0) - dim_dist1 - l1: t2(1) = start_r2(1) + 0.5 * width
+    t3(0) = start_r1(0) + length + dim_dist1: t3(1) = start_r2(1) + 0.5 * w1
+    t4(0) = start_r1(0) + length + dim_dist1: t4(1) = start_r2(1) + w1 + 0.5 * in_width
+    t5(0) = start_r1(0) + length + dim_dist1: t5(1) = start_r2(1) + w1 + in_width + 0.5 * w2
+    t6(0) = start_r1(0) + 0.5 * l1 + in_length + 0.5 * l2: t6(1) = start_r2(1) + width + dim_dist1
+    t7(0) = start_r1(0) + l1 + 0.5 * in_length: t7(1) = start_r2(1) + width + dim_dist1
+    t8(0) = start_r1(0) + 0.5 * l1 - 50: t8(1) = start_r2(1) + width + dim_dist1
 
-    SelectActiveLayer "éˆ‘é‡‘"
+    SelectActiveLayer "¶zª÷"
     AddRect start_r1, length, in_width
     AddRect start_r2, in_length, width
 
-    SelectActiveLayer "å°ºå¯¸"
-    AddMainDims start_r1, c, dim_dist, "down", start_r2, g, dim_dist, "left", text_height, arrow_size1
+    ' SelectActiveLayer "¥D¤Ø¤o"
+    SelectActiveLayer "¨ä¥L¤Ø¤o"
+    AddMainDims start_r1, c, dim_dist1, "down", start_r2, g, dim_dist1, "left", text_height, arrow_size1
+
+    ' SelectActiveLayer "¨ä¥L¤Ø¤o"
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(a, b, t3)
     AcadDimAligned.TextHeight = text_height
     AcadDimAligned.ArrowheadSize = arrow_size1
@@ -423,7 +445,7 @@ Public Sub AddTwoCrossRects(ByVal start, ByVal length, ByVal width, ByVal l1, By
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(h, i, t8)
     AcadDimAligned.TextHeight = text_height
     AcadDimAligned.ArrowheadSize = arrow_size1
-    SelectActiveLayer "éˆ‘é‡‘"
+    SelectActiveLayer "¶zª÷"
 End Sub
 
 
@@ -438,9 +460,9 @@ Public Sub fans_board(ByVal start, ByVal d1, ByVal o_v2, ByVal o_v3, ByVal o_v4,
     Dim add_dim(4) As Double
     Dim text_loc(2) As Double
     Dim chordPoint(2) As Double, FarchordPoint(2) As Double
-    comp_length = efficient_dist + 2*o_v4
+    comp_length = efficient_dist + 2 * o_v4
 
-    ' éˆ‘é‡‘
+    ' ¶zª÷
     ' TODO: complete AddHill dimension function
     ' add_dim(0) = 1: add_dim(1) = 2: add_dim(2) = 3: add_dim(3) = 4: add_dim(4) = 5
     AddHill start, 0, comp_length, 0, o_v4, o_v4, "h_flip", text_height:=dim_text_height1, arrow_size:=arrow_size1
@@ -455,8 +477,8 @@ Public Sub fans_board(ByVal start, ByVal d1, ByVal o_v2, ByVal o_v3, ByVal o_v4,
     p2(0) = p1(0) + comp_length: p2(1) = p1(1)
     Set line_obj = ThisDrawing.ModelSpace.AddLine(p1, p2)
 
-    SelectActiveLayer "å°ºå¯¸"
-    'ç¸½é•·å¯¬æ¨™è¨»
+    SelectActiveLayer "¨ä¥L¤Ø¤o"
+    'Á`ªø¼e¼Ğµù
     text_loc(0) = (p1(0) + p2(0)) / 2: text_loc(1) = p1(1) + dim_dist1
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p2, text_loc)
     AcadDimAligned.TextHeight = dim_text_height1
@@ -468,16 +490,16 @@ Public Sub fans_board(ByVal start, ByVal d1, ByVal o_v2, ByVal o_v3, ByVal o_v4,
     AcadDimAligned.TextHeight = dim_text_height1
     AcadDimAligned.ArrowheadSize = arrow_size1
     
-    ' ä¸Šä¸‹æŠ˜é¢åŠé€£æ¥è™•èºçµ²
-    SelectActiveLayer "éˆ‘é‡‘"
-    p1(0) = start(0) + o_v4/2: p1(1) = start(1) - o_v5
-    AddRectCircles p1, d1/2, comp_length-o_v4, comp_width-2*o_v5
-    p1(0) = start(0) + o_v4/2: p1(1) = start(1) + o_v2 - thickness - o_v6
-    AddRectCircles p1, d1/2, comp_length-o_v4, o_v3+2*(thickness+o_v6)
+    ' ¤W¤U§é­±¤Î³s±µ³BÁ³µ·
+    SelectActiveLayer "¶zª÷"
+    p1(0) = start(0) + o_v4 / 2: p1(1) = start(1) - o_v5
+    AddRectCircles p1, d1 / 2, comp_length - o_v4, comp_width - 2 * o_v5
+    p1(0) = start(0) + o_v4 / 2: p1(1) = start(1) + o_v2 - thickness - o_v6
+    AddRectCircles p1, d1 / 2, comp_length - o_v4, o_v3 + 2 * (thickness + o_v6)
     x = o_v6 + thickness + (o_v3 - screw_dist) / 2
 
-    ' ä¸Šä¸‹æŠ˜é¢åŠé€£æ¥è™•èºçµ² æ¨™è¨»
-    SelectActiveLayer "å°ºå¯¸"
+    ' ¤W¤U§é­±¤Î³s±µ³BÁ³µ· ¼Ğµù
+    SelectActiveLayer "¨ä¥L¤Ø¤o"
     p2(0) = p1(0): p2(1) = p1(1) + o_v6 + thickness
     text_loc(0) = p1(0) - dim_dist2: text_loc(1) = (p1(1) + p2(1)) / 2
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p2, text_loc)
@@ -490,66 +512,67 @@ Public Sub fans_board(ByVal start, ByVal d1, ByVal o_v2, ByVal o_v3, ByVal o_v4,
     AcadDimAligned.TextHeight = dim_text_height2
     AcadDimAligned.ArrowheadSize = arrow_size2
 
-    chordPoint(0) = p2(0) + d1/2/Sqr(2): chordPoint(1) = p2(1) + d1/2/Sqr(2)
-    FarchordPoint(0) = p2(0) - d1/2/Sqr(2): FarchordPoint(1) = p2(1) - d1/2/Sqr(2)
+    chordPoint(0) = p2(0) + d1 / 2 / Sqr(2): chordPoint(1) = p2(1) + d1 / 2 / Sqr(2)
+    FarchordPoint(0) = p2(0) - d1 / 2 / Sqr(2): FarchordPoint(1) = p2(1) - d1 / 2 / Sqr(2)
     Set dim_obj = ThisDrawing.ModelSpace.AddDimDiametric(chordPoint, FarchordPoint, LeaderLength:=5)
     dim_obj.TextHeight = dim_text_height2
     dim_obj.ArrowheadSize = arrow_size2
 
-    ' é¢¨æ–—å´é‚Šèºçµ²å­”
-    SelectActiveLayer "éˆ‘é‡‘"
-    p1(0) = start(0) + o_v4/2: p1(1) = start(1) + o_v2 - thickness - o_v6 + x
-    AddLinedCircles p1, d1/2, screw_dist/(num_screw-1), num_screw, 1, _
+    ' ­·¤æ°¼ÃäÁ³µ·¤Õ
+    SelectActiveLayer "¶zª÷"
+    p1(0) = start(0) + o_v4 / 2: p1(1) = start(1) + o_v2 - thickness - o_v6 + x
+    AddLinedCircles p1, d1 / 2, screw_dist / (num_screw - 1), num_screw, 1, _
                     text_dist:=dim_dist2, text_dir:=2, text_height:=dim_text_height2, arrow_size1:=arrow_size1
 
-    ' é¢¨æ–—å´é‚Šèºçµ²å­” æ¨™è¨»
-    SelectActiveLayer "å°ºå¯¸"
-    p2(0) = p1(0) - (connect_width+thickness)/2: p2(1) = p1(1)
+    ' ­·¤æ°¼ÃäÁ³µ·¤Õ ¼Ğµù
+    SelectActiveLayer "¨ä¥L¤Ø¤o"
+    p2(0) = p1(0) - (connect_width + thickness) / 2: p2(1) = p1(1)
     text_loc(0) = (p1(0) + p2(0)) / 2: text_loc(1) = p1(1) - dim_dist3
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p2, text_loc)
     AcadDimAligned.TextHeight = dim_text_height2
     AcadDimAligned.ArrowheadSize = arrow_size2
-    SelectActiveLayer "éˆ‘é‡‘"
+    SelectActiveLayer "¶zª÷"
     p1(0) = p1(0) + comp_length - connect_width - thickness
-    AddLinedCircles p1, d1/2, screw_dist/(num_screw-1), num_screw, 1
+    AddLinedCircles p1, d1 / 2, screw_dist / (num_screw - 1), num_screw, 1
 
-    ' é¢¨æ–—èˆ‡é¦¬é”æ¶èºçµ²å­”
-    comp = 4 - (Int(efficient_dist/num_motor) Mod 4)
-    dist = Int(efficient_dist/num_motor) + comp
-    p1(0) = start(0) + comp_length/2: p1(1) = start(1) + comp_width/2
-    p1(0) = p1(0) - (0.5*num_motor-0.5)*dist
-    AddLinedCircles p1, fan_diameter/2, dist, num_motor, 0
+    ' ­·¤æ»P°¨¹F¬[Á³µ·¤Õ
+    comp = 4 - (Int(efficient_dist / num_motor) Mod 4)
+    dist = Int(efficient_dist / num_motor) + comp
+    p1(0) = start(0) + comp_length / 2: p1(1) = start(1) + comp_width / 2
+    p1(0) = p1(0) - (0.5 * num_motor - 0.5) * dist
+    AddLinedCircles p1, fan_diameter / 2, dist, num_motor, 0
 
-    p2(0) = p1(0) - motor_frame_length/2: p2(1) = p1(1) - motor_frame_width/2
+    p2(0) = p1(0) - motor_frame_length / 2: p2(1) = p1(1) - motor_frame_width / 2
     p3(0) = p1(0) - 70: p3(1) = p1(1) - 70
     p5(0) = p1(0) - 70: p5(1) = p1(1)
-    For i = 1 to num_motor
-        ' é¦¬é”æ¶èºçµ²å­”
-        SelectActiveLayer "èºçµ²"
-        AddRectCircles p2, 11.5/2, motor_frame_length, motor_frame_width
-
-        ' é¢¨æ‰‡æ–‡å­—èªªæ˜
-        SelectActiveLayer "éˆ‘é‡‘"
+    For i = 1 To num_motor
+        ' °¨¹F¬[Á³µ·¤Õ
+        SelectActiveLayer "Á³µ·"
+        ' TODO:
+        AddRectCircles p2, 11.5 / 2, motor_frame_length, motor_frame_width
+        ' AddCross p2, 11.5, 11.5, 11.5, 11.5
+        ' ­·®°¤å¦r»¡©ú
+        SelectActiveLayer "¶zª÷"
         ' TODO: error message
         If is_expand = "y" Then
-            t = "æŠ½å”‡"
+            t = "©â®B"
         ElseIf is_expand = "n" Then
-            t = "ä¸æŠ½å”‡"
+            t = "¤£©â®B"
         End If
         ' 50 text height
         ThisDrawing.ModelSpace.AddText fan_type & "''", p5, 50
         ThisDrawing.ModelSpace.AddText t, p3, 50
 
-        ' å´æ¿èºçµ²å­”
+        ' °¼ªOÁ³µ·¤Õ
         If i < num_motor Then
-            SelectActiveLayer "éˆ‘é‡‘"
-            p4(0) = p1(0) + dist/2: p4(1) = p1(1) - screw_dist/2
+            SelectActiveLayer "¶zª÷"
+            p4(0) = p1(0) + dist / 2: p4(1) = p1(1) - screw_dist / 2
             If i = 1 Then
-                AddLinedCircles p4, d1/2, screw_dist/(num_part_screw-1), num_part_screw, 1, _
+                AddLinedCircles p4, d1 / 2, screw_dist / (num_part_screw - 1), num_part_screw, 1, _
                                 text_dist:=10, text_dir:=2, text_height:=dim_text_height2, arrow_size1:=arrow_size2
-            Else 
-                AddLinedCircles p4, d1/2, screw_dist/(num_part_screw-1), num_part_screw, 1
-            End If   
+            Else
+                AddLinedCircles p4, d1 / 2, screw_dist / (num_part_screw - 1), num_part_screw, 1
+            End If
         End If
 
         p1(0) = p1(0) + dist
@@ -558,7 +581,7 @@ Public Sub fans_board(ByVal start, ByVal d1, ByVal o_v2, ByVal o_v3, ByVal o_v4,
         p5(0) = p5(0) + dist
     Next
 
-    SelectActiveLayer "éˆ‘é‡‘"
+    SelectActiveLayer "¶zª÷"
 End Sub
 
 
@@ -569,36 +592,36 @@ Public Sub inner_side_board(ByVal start, ByVal d)
     Dim text_loc(2) As Double
     Dim chordPoint(2) As Double, FarchordPoint(2) As Double
 
-    SelectActiveLayer "èºçµ²"
-    p(0) = start(0): p(1) = start(1) + 1.5*stick_dist
+    SelectActiveLayer "Á³µ·"
+    p(0) = start(0): p(1) = start(1) + 1.5 * stick_dist
     AddFinCircles p, tube_num_row, 1, row_dist, stick_dist, d
-    p(0) = start(0): p(1) = start(1) + (tube_num_stick-1-1.5)*stick_dist
+    p(0) = start(0): p(1) = start(1) + (tube_num_stick - 1 - 1.5) * stick_dist
     AddFinCircles p, tube_num_row, 1, row_dist, stick_dist, d
 
     ' If tube_num_stick > 10
-    SelectActiveLayer "éˆ‘é‡‘"
-    ' éŠ…ç®¡å­”
+    SelectActiveLayer "¶zª÷"
+    ' »ÉºŞ¤Õ
     AddFinCircles start, tube_num_row, tube_num_stick, row_dist, stick_dist, in_sb_d
-    p(0) = start(0) - 0.5*row_dist: p(1) = start(1) - 0.75*stick_dist
-    comp_length = tube_num_row*row_dist
-    comp_width = tube_num_stick*stick_dist
-    ' å¤–æ¡†
+    p(0) = start(0) - 0.5 * row_dist: p(1) = start(1) - 0.75 * stick_dist
+    comp_length = tube_num_row * row_dist
+    comp_width = tube_num_stick * stick_dist
+    ' ¥~®Ø
     AddRect p, comp_length, comp_width
 
-    ' å¤–æ¡†å°ºå¯¸æ¨™è¨»
-    SelectActiveLayer "å°ºå¯¸"
+    ' ¥~®Ø¤Ø¤o¼Ğµù
+    SelectActiveLayer "¨ä¥L¤Ø¤o"
     p2(0) = p(0) + comp_length: p2(1) = p(1)
-    text_loc(0) = p(0) + 0.5*comp_length: text_loc(1) = p(1) - dim_dist1
+    text_loc(0) = p(0) + 0.5 * comp_length: text_loc(1) = p(1) - dim_dist1
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p, p2, text_loc)
     AcadDimAligned.TextHeight = text_height
     AcadDimAligned.ArrowheadSize = arrow_size1
     p2(0) = p(0): p2(1) = p(1) + comp_width
-    text_loc(0) = p(0) - dim_dist1: text_loc(1) = p(1) + 0.5*comp_width
+    text_loc(0) = p(0) - dim_dist1: text_loc(1) = p(1) + 0.5 * comp_width
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p, p2, text_loc)
     AcadDimAligned.TextHeight = text_height
     AcadDimAligned.ArrowheadSize = arrow_size1
 
-    ' éŠ…ç®¡å­”å°ºå¯¸æ¨™è¨»
+    ' »ÉºŞ¤Õ¤Ø¤o¼Ğµù
     ' p2(0) = start(0): p2(1) = start(1) + (tube_num_stick-1-1.5)*stick_dist
     If tube_num_row Mod 2 = 0 Then
         comp = 0.5
@@ -606,23 +629,24 @@ Public Sub inner_side_board(ByVal start, ByVal d)
         comp = 0
     End If
         
-    p2(0) = start(0) + (tube_num_row-1)*row_dist
-    p2(1) = start(1) + Int(tube_num_stick/2)*stick_dist - comp*stick_dist
-    chordPoint(0) = p2(0) + in_sb_d/2/Sqr(2): chordPoint(1) = p2(1) - in_sb_d/2/Sqr(2)
-    FarchordPoint(0) = p2(0) - in_sb_d/2/Sqr(2): FarchordPoint(1) = p2(1) + in_sb_d/2/Sqr(2)
+    p2(0) = start(0) + (tube_num_row - 1) * row_dist
+    p2(1) = start(1) + Int(tube_num_stick / 2) * stick_dist - comp * stick_dist
+    chordPoint(0) = p2(0) + in_sb_d / 2 / Sqr(2): chordPoint(1) = p2(1) - in_sb_d / 2 / Sqr(2)
+    FarchordPoint(0) = p2(0) - in_sb_d / 2 / Sqr(2): FarchordPoint(1) = p2(1) + in_sb_d / 2 / Sqr(2)
+    ' TODO: LeaderLength:=5
     Set dim_obj = ThisDrawing.ModelSpace.AddDimDiametric(chordPoint, FarchordPoint, LeaderLength:=5)
     dim_obj.TextHeight = dim_text_height2
     dim_obj.ArrowheadSize = arrow_size2
 
-    p2(0) = start(0) + (tube_num_row-1)*row_dist
-    p2(1) = start(1) + (tube_num_stick-1-1.5)*stick_dist - comp*stick_dist
-    chordPoint(0) = p2(0) + d/2/Sqr(2): chordPoint(1) = p2(1) - d/2/Sqr(2)
-    FarchordPoint(0) = p2(0) - d/2/Sqr(2): FarchordPoint(1) = p2(1) + d/2/Sqr(2)
+    p2(0) = start(0) + (tube_num_row - 1) * row_dist
+    p2(1) = start(1) + (tube_num_stick - 1 - 1.5) * stick_dist - comp * stick_dist
+    chordPoint(0) = p2(0) + d / 2 / Sqr(2): chordPoint(1) = p2(1) - d / 2 / Sqr(2)
+    FarchordPoint(0) = p2(0) - d / 2 / Sqr(2): FarchordPoint(1) = p2(1) + d / 2 / Sqr(2)
     Set dim_obj = ThisDrawing.ModelSpace.AddDimDiametric(chordPoint, FarchordPoint, LeaderLength:=5)
     dim_obj.TextHeight = dim_text_height2
     dim_obj.ArrowheadSize = arrow_size2
 
-    SelectActiveLayer "éˆ‘é‡‘"
+    SelectActiveLayer "¶zª÷"
 End Sub
 
 
@@ -631,31 +655,32 @@ Public Sub partition(ByVal start, ByVal v1, ByVal v2, ByVal v3, ByVal d1, ByVal 
     Dim comp_width As Double
     Dim p(2) As Double: Dim p2(2) As Double
     Dim text_loc(2) As Double
-	Dim center(2) As Double
-	Dim chordPoint(2) As Double, FarchordPoint(2) As Double
-	Dim leaderLen As Integer
+    Dim center(2) As Double
+    Dim chordPoint(2) As Double, FarchordPoint(2) As Double
+    Dim leaderLen As Integer
 
-    ' éˆ‘é‡‘
-    comp_length = fin_length + 2*v1
-    comp_width = inner_dist - v3 + 2*v1
+    ' ¶zª÷
+    comp_length = fin_length + 2 * v1
+    comp_width = inner_dist - v3 + 2 * v1
     ' comp_width = Int(comp_width+1)
     AddTwoCrossRects start, comp_length, comp_width, v1, v1, v1, v1, _
-                     dim_dist:=dim_dist1, text_height:=dim_text_height1, arrow_size:=arrow_size
+                     text_height:=dim_text_height1, arrow_size:=arrow_size
 
-    ' èºçµ²
-    p(0) = start(0) + v1 + (fin_length-screw_dist)/2: p(1) = start(1) + comp_width - dist1
-    AddLinedCircles p, d1/2, screw_dist/(num_part_screw-1), num_part_screw, 0, _
-                    text_dist:=dim_dist2, text_dir:=1, text_height:=dim_text_height2, arrow_size1:=arrow_size2
+    ' Á³µ·
+    p(0) = start(0) + v1 + (fin_length - screw_dist) / 2: p(1) = start(1) + comp_width - dist1
+    AddLinedCircles p, d1 / 2, screw_dist / (num_part_screw - 1), num_part_screw, 0, _
+                    text_dist:=dim_dist2, text_dir:=1, text_height:=dim_text_height2, _
+                    arrow_size1:=arrow_size2
 
-    ' èºçµ²å­”æ¨™è¨»
-    SelectActiveLayer "å°ºå¯¸"
-	FarchordPoint(0) = p(0) - d1/2/Sqr(2): FarchordPoint(1) = p(1) + d1/2/Sqr(2)
-	chordPoint(0) = p(0) + d1/2/Sqr(2): chordPoint(1) = p(1) - d1/2/Sqr(2)
+    ' Á³µ·¤Õ¼Ğµù
+    SelectActiveLayer "¨ä¥L¤Ø¤o"
+    FarchordPoint(0) = p(0) - d1 / 2 / Sqr(2): FarchordPoint(1) = p(1) + d1 / 2 / Sqr(2)
+    chordPoint(0) = p(0) + d1 / 2 / Sqr(2): chordPoint(1) = p(1) - d1 / 2 / Sqr(2)
     Set dim_obj = ThisDrawing.ModelSpace.AddDimDiametric(chordPoint, FarchordPoint, LeaderLength:=5)
     dim_obj.TextHeight = dim_text_height2
     dim_obj.ArrowheadSize = arrow_size2
 
-    SelectActiveLayer "éˆ‘é‡‘"
+    SelectActiveLayer "¶zª÷"
 End Sub
 
 
@@ -666,34 +691,32 @@ Public Sub outer_side_board(ByVal start, ByVal start2, ByVal v1, ByVal v2, ByVal
     Dim text_loc(2) As Double
     Dim chordPoint(2) As Double, FarchordPoint(2) As Double
     
-    comp_length = inner_dist + v3 + (tube_num_row-1)*row_dist + 2*connect_width
+    comp_length = inner_dist + v3 + (tube_num_row - 1) * row_dist + 2 * connect_width
     comp_width = fin_length + connect_width + v1
     If comp_width - Int(comp_width) = 0 Then
-        tmp = comp_width + 2*v2
-    Else    
-        tmp =  Int(comp_width + 2*v2 + 1)
+        tmp = comp_width + 2 * v2
+    Else
+        tmp = Int(comp_width + 2 * v2 + 1)
     End If
-    ext = (tmp-comp_width)/2
+    ext = (tmp - comp_width) / 2
     comp_width = tmp
 
-    ' ç©¿é¢
-    AddTwoCrossRects start, comp_length, comp_width,  connect_width, connect_width, _
-                     v1,  connect_width, dim_dist:=dim_dist1, text_height:=dim_text_height1, _
-                     arrow_size:=arrow_size
+    ' ¬ï­±
+    AddTwoCrossRects start, comp_length, comp_width, connect_width, connect_width, _
+                     v1, connect_width, text_height:=dim_text_height1, arrow_size:=arrow_size
 
-    ' ç„Šé¢
-    ' å¤–æ¡†
-    AddTwoCrossRects start2, comp_length, comp_width,  connect_width,connect_width, _
-                     v1,  connect_width, dim_dist:=dim_dist1, text_height:=dim_text_height1, _
-                     arrow_size:=arrow_size
-    ' å·¦å´é€£æ¥è™•èºçµ²å­”
-    p1(0) = start2(0) + (connect_width+thickness)/2: p1(1) = start2(1) + v1 + (fin_length+2*v2-screw_dist)/2
-    AddLinedCircles p1, d1/2, screw_dist/(num_screw-1), num_screw, 1, _
+    ' ²k­±
+    ' ¥~®Ø
+    AddTwoCrossRects start2, comp_length, comp_width, connect_width, connect_width, _
+                     v1, connect_width, text_height:=dim_text_height1, arrow_size:=arrow_size
+    ' ¥ª°¼³s±µ³BÁ³µ·¤Õ
+    p1(0) = start2(0) + (connect_width + thickness) / 2: p1(1) = start2(1) + v1 + (fin_length + 2 * v2 - screw_dist) / 2
+    AddLinedCircles p1, d1 / 2, screw_dist / (num_screw - 1), num_screw, 1, _
                     text_dist:=dim_dist2, text_dir:=2, text_height:=dim_text_height2, arrow_size1:=arrow_size2
     
-    SelectActiveLayer "å°ºå¯¸"
-    chordPoint(0) = p1(0) + d1/2/Sqr(2): chordPoint(1) = p1(1) + d1/2/Sqr(2)
-    FarchordPoint(0) = p1(0) - d1/2/Sqr(2): FarchordPoint(1) = p1(1) - d1/2/Sqr(2)
+    SelectActiveLayer "¨ä¥L¤Ø¤o"
+    chordPoint(0) = p1(0) + d1 / 2 / Sqr(2): chordPoint(1) = p1(1) + d1 / 2 / Sqr(2)
+    FarchordPoint(0) = p1(0) - d1 / 2 / Sqr(2): FarchordPoint(1) = p1(1) - d1 / 2 / Sqr(2)
     Set dim_obj = ThisDrawing.ModelSpace.AddDimDiametric(chordPoint, FarchordPoint, LeaderLength:=5)
     dim_obj.TextHeight = dim_text_height2
     dim_obj.ArrowheadSize = arrow_size2
@@ -701,122 +724,98 @@ Public Sub outer_side_board(ByVal start, ByVal start2, ByVal v1, ByVal v2, ByVal
 
     p1(1) = p1(1) + screw_dist
     p3(0) = start2(0): p3(1) = p1(1)
-    text_loc(0) = (p1(0)+p3(0))/2: text_loc(1) = p1(1) + dim_dist2
+    text_loc(0) = (p1(0) + p3(0)) / 2: text_loc(1) = p1(1) + dim_dist2
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p3, text_loc)
     AcadDimAligned.TextHeight = dim_text_height2
     AcadDimAligned.ArrowheadSize = arrow_size2
 
-    ' å³å´é€£æ¥è™•èºçµ²å­”
-    SelectActiveLayer "éˆ‘é‡‘"
-    p1(0) = start2(0) + comp_length -  connect_width/2: p1(1) = start2(1) + v1 + v5
-    AddLinedCircles p1, d1/2, fin_length+2*v2-2*v5, 2, 1
+    ' ¥k°¼³s±µ³BÁ³µ·¤Õ
+    SelectActiveLayer "¶zª÷"
+    p1(0) = start2(0) + comp_length - connect_width / 2: p1(1) = start2(1) + v1 + v5
+    AddLinedCircles p1, d1 / 2, fin_length + 2 * v2 - 2 * v5, 2, 1
 
-    SelectActiveLayer "å°ºå¯¸"
+    SelectActiveLayer "¨ä¥L¤Ø¤o"
     p3(0) = p1(0): p3(1) = p1(1) - v5
-    text_loc(0) = p1(0) + dim_dist2: text_loc(1) = (p1(1)+p3(1))/2
+    text_loc(0) = p1(0) + dim_dist2: text_loc(1) = (p1(1) + p3(1)) / 2
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p3, text_loc)
     AcadDimAligned.TextHeight = dim_text_height2
     AcadDimAligned.ArrowheadSize = arrow_size2
     
-    p1(1) = p1(1) + fin_length+2*v2-2*v5
+    p1(1) = p1(1) + fin_length + 2 * v2 - 2 * v5
     p3(0) = p1(0): p3(1) = p1(1) + v5
-    text_loc(0) = p1(0) + dim_dist2: text_loc(1) = (p1(1)+p3(1))/2
+    text_loc(0) = p1(0) + dim_dist2: text_loc(1) = (p1(1) + p3(1)) / 2
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p3, text_loc)
     AcadDimAligned.TextHeight = dim_text_height2
     AcadDimAligned.ArrowheadSize = arrow_size2
 
-    ' ä¸Šé€£æ¥è™•èºçµ²å­”
-    SelectActiveLayer "éˆ‘é‡‘"
-    p1(0) = start2(0) +  connect_width + v6: p1(1) = start2(1) + comp_width - connect_width/2
-    AddLinedCircles p1, d1/2, 0, 1, 0, _
+    ' ¤W³s±µ³BÁ³µ·¤Õ
+    SelectActiveLayer "¶zª÷"
+    p1(0) = start2(0) + connect_width + v6: p1(1) = start2(1) + comp_width - connect_width / 2
+    AddLinedCircles p1, d1 / 2, 0, 1, 0, _
                     text_dist:=dim_dist2, text_dir:=2, text_height:=dim_text_height1, arrow_size1:=arrow_size1
-    SelectActiveLayer "å°ºå¯¸"
+    SelectActiveLayer "¨ä¥L¤Ø¤o"
     p3(0) = p1(0) - v6: p3(1) = p1(1)
-    text_loc(0) = (p1(0)+p3(0))/2: text_loc(1) = p1(1) + dim_dist2
+    text_loc(0) = (p1(0) + p3(0)) / 2: text_loc(1) = p1(1) + dim_dist2
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p3, text_loc)
     AcadDimAligned.TextHeight = dim_text_height1
     AcadDimAligned.ArrowheadSize = arrow_size1
 
-    ' é•·èºçµ²å­”
-    SelectActiveLayer "éˆ‘é‡‘"
+    ' ªøÁ³µ·¤Õ
+    SelectActiveLayer "¶zª÷"
     ' TODO: 20 12 8
     max_d = 12
     d2 = 8
     x1 = 20
     x2 = 8
     x3 = 10
-    p1(0) = start2(0) +  connect_width + x1: p1(1) = start2(1) + x2
-    AddArcwithLines p1, d2/2, max_d
-    p3(0) = p1(0) + comp_length - 2*connect_width - x1 - x3: p3(1) = p1(1)
-    AddArcwithLines p3, d2/2, max_d
+    p1(0) = start2(0) + connect_width + x1: p1(1) = start2(1) + x2
+    AddArcwithLines p1, d2 / 2, max_d
+    p3(0) = p1(0) + comp_length - 2 * connect_width - x1 - x3: p3(1) = p1(1)
+    AddArcwithLines p3, d2 / 2, max_d
 
-    ' é•·èºçµ²å­” æ¨™è¨»
+    ' ªøÁ³µ·¤Õ ¼Ğµù
 
-    ' éŠ…ç®¡å­”
-    p1(0) = start2(0) +  connect_width + inner_dist: p1(1) = start2(1) + v1 + ext + stick_dist*3/4
+    ' »ÉºŞ¤Õ
+    p1(0) = start2(0) + connect_width + inner_dist: p1(1) = start2(1) + v1 + ext + stick_dist * 3 / 4
     ' TODO: 10
-    dd = 10
-    AddFinCircles p1, tube_num_row, tube_num_stick, row_dist, stick_dist, dd
+    AddFinCircles p1, tube_num_row, tube_num_stick, row_dist, stick_dist, 10
 
-    SelectActiveLayer "èºçµ²"
-    p2(0) = p1(0): p2(1) = p1(1) + 1.5*stick_dist
+    SelectActiveLayer "Á³µ·"
+    p2(0) = p1(0): p2(1) = p1(1) + 1.5 * stick_dist
     AddFinCircles p2, tube_num_row, 1, row_dist, stick_dist, d1
-    p2(0) = p1(0): p2(1) = p1(1) + (tube_num_stick-1-1.5)*stick_dist
+    p2(0) = p1(0): p2(1) = p1(1) + (tube_num_stick - 1 - 1.5) * stick_dist
     AddFinCircles p2, tube_num_row, 1, row_dist, stick_dist, d1
+    ' p2(0) = p1(0): p2(1) = p1(1) + (tube_num_stick/2+0.5)*stick_dist # Add Round for odd sticks
+    ' AddFinCircles p2, tube_num_row, 1, row_dist, stick_dist, d1
+    SelectActiveLayer "¶zª÷"
 
-    SelectActiveLayer "å°ºå¯¸"
-    chordPoint(0) = p2(0) - d1/2/Sqr(2): chordPoint(1) = p2(1) - d1/2/Sqr(2)
-    FarchordPoint(0) = p2(0) + d1/2/Sqr(2): FarchordPoint(1) = p2(1) + d1/2/Sqr(2)
-    Set dim_obj = ThisDrawing.ModelSpace.AddDimDiametric(chordPoint, FarchordPoint, LeaderLength:=5)
-    dim_obj.TextHeight = dim_text_height2
-    dim_obj.ArrowheadSize = arrow_size2
-
-    p2(0) = p1(0): p2(1) = p1(1) + Int(tube_num_stick/2)*stick_dist
-    chordPoint(0) = p2(0) - dd/2/Sqr(2): chordPoint(1) = p2(1) - dd/2/Sqr(2)
-    FarchordPoint(0) = p2(0) + dd/2/Sqr(2): FarchordPoint(1) = p2(1) + dd/2/Sqr(2)
-    Set dim_obj = ThisDrawing.ModelSpace.AddDimDiametric(chordPoint, FarchordPoint, LeaderLength:=5)
-    dim_obj.TextHeight = dim_text_height2
-    dim_obj.ArrowheadSize = arrow_size2
-    
-    p1(0) = p1(0) + (tube_num_row-1)*row_dist: p1(1) = p1(1) + (tube_num_stick-1)*stick_dist
-    p3(0) = p1(0) + v3: p3(1) = p1(1)
-    text_loc(0) = (p1(0)+p3(0))/2: text_loc(1) = p1(1) + dim_dist3
-    Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p3, text_loc)
-    AcadDimAligned.TextHeight = dim_text_height2
-    AcadDimAligned.ArrowheadSize = arrow_size2
-
-    SelectActiveLayer "éˆ‘é‡‘"
-    
 End Sub
 
 
-Public Sub heater() ' ä¸€èˆ¬ç†±æ’
-    Set lay1 = ThisDrawing.Layers.Add("éˆ‘é‡‘") ' å¢åŠ ä¸€å€‹åç‚ºâ€œéˆ‘é‡‘â€çš„åœ–å±¤
-    Set lay2 = ThisDrawing.Layers.Add("ä¸»å°ºå¯¸") ' å¢åŠ ä¸€å€‹åç‚ºâ€œä¸»å°ºå¯¸â€çš„åœ–å±¤
-    lay2.color = 1 ' åœ–å±¤è¨­ç½®ç‚ºç´…è‰²
-    Set lay3 = ThisDrawing.Layers.Add("å°ºå¯¸") ' å¢åŠ ä¸€å€‹åç‚ºâ€œå°ºå¯¸â€çš„åœ–å±¤
-    lay3.color = 3 ' åœ–å±¤è¨­ç½®ç‚ºç¶ è‰²
-    Set lay4 = ThisDrawing.Layers.Add("èºçµ²") ' å¢åŠ ä¸€å€‹åç‚ºâ€œèºçµ²â€çš„åœ–å±¤
-    lay4.color = 6 ' åœ–å±¤è¨­ç½®ç‚ºæ´‹ç´…
-    ThisDrawing.ActiveLayer = lay1 ' å°‡â€œéˆ‘é‡‘â€è¨­ç½®ç‚ºç•¶å‰åœ–å±¤
+Public Sub heater() ' ¤@¯ë¼ö±Æ
+    Set lay1 = ThisDrawing.Layers.Add("¶zª÷") ' ¼W¥[¤@­Ó¦W¬°¡§¶zª÷¡¨ªº¹Ï¼h
+    Set lay2 = ThisDrawing.Layers.Add("¥D¤Ø¤o") ' ¼W¥[¤@­Ó¦W¬°¡§¥D¤Ø¤o¡¨ªº¹Ï¼h
+    lay2.color = 1 ' ¹Ï¼h³]¸m¬°¬õ¦â
+    Set lay3 = ThisDrawing.Layers.Add("¨ä¥L¤Ø¤o") ' ¼W¥[¤@­Ó¦W¬°¡§¨ä¥L¤Ø¤o¡¨ªº¹Ï¼h
+    lay3.color = 3 ' ¹Ï¼h³]¸m¬°ºñ¦â
+    Set lay4 = ThisDrawing.Layers.Add("Á³µ·") ' ¼W¥[¤@­Ó¦W¬°¡§Á³µ·¡¨ªº¹Ï¼h
+    lay4.color = 6 ' ¹Ï¼h³]¸m¬°¬v¬õ
+    ThisDrawing.ActiveLayer = lay1 ' ±N¡§¶zª÷¡¨³]¸m¬°·í«e¹Ï¼h
 
-    On Error Resume Next ' å¦‚æœæœ‰éŒ¯èª¤, ä¸ç®¡ä»–
-    ' åˆªé™¤æ‰€æœ‰ä½œåœ–
+    On Error Resume Next ' ¦pªG¦³¿ù»~, ¤£ºŞ¥L
+    ' §R°£©Ò¦³§@¹Ï
     For Each oEntity In ThisDrawing.ModelSpace
         oEntity.Delete
     Next
 
-    ' 10 HP 3åˆ†5R20T 1454 mm
-    Dim start(2)  As Double ' å…¨åœ–ä½œåœ–èµ·å§‹é»
-    Dim comp_start(2)  As Double ' é…ä»¶ä½œåœ–èµ·å§‹é»
+    ' 10 HP 3¤À5R20T 1454 mm
+    Dim start(2)  As Double ' ¥ş¹Ï§@¹Ï°_©lÂI
+    Dim comp_start(2)  As Double ' °t¥ó§@¹Ï°_©lÂI
     Dim comp_start2(2)  As Double
     start(0) = 1000: start(1) = 1000
     
-    ' TODO: è¼¸å…¥ä¸åˆæ³• å ±éŒ¯
-    ' TODO: ç®¡å¾‘ å½é ­ è€ƒæ…®ä¸‹æ‹‰å¼é¸å–®
-
-    MsgBox tube_head
-
+    ' TODO: ¿é¤J¤£¦Xªk ³ø¿ù
+    ' TODO: ºŞ®| ÅsÀY ¦Ò¼{¤U©Ô¦¡¿ï³æ
     tube_head = 22
     tube_diameter = 3
     tube_num_row = 5
@@ -826,9 +825,9 @@ Public Sub heater() ' ä¸€èˆ¬ç†±æ’
     motor_frame_length = 272
     motor_frame_width = 272
     thickness = 1
-    material = "éŒæ¿"
-    partition_material = "é‹æ¿"
-    num_motor = 3
+    material = "ëâªO"
+    partition_material = "¾TªO"
+    num_motor = 4
     inner_dist = 101
     connect_width = 14
     num_screw = 4
@@ -845,8 +844,8 @@ Public Sub heater() ' ä¸€èˆ¬ç†±æ’
     ' motor_frame_length = 272.2
     ' motor_frame_width = 272.2
     ' thickness = 1
-    ' material = "éŒæ¿"
-    ' partition_material = "é‹æ¿"
+    ' material = "ëâªO"
+    ' partition_material = "¾TªO"
     ' num_motor = 2
     ' inner_dist = 106.9
     ' connect_width = 11
@@ -855,7 +854,7 @@ Public Sub heater() ' ä¸€èˆ¬ç†±æ’
     ' num_part_screw = 3
     ' is_expand = "y"
 
-    ' æ’æ”¯æ•¸æ›ç®—é°­ç‰‡é•·å¯¬ & ç©¿ç®¡å­”å¾‘
+    ' ±Æ¤ä¼Æ´«ºâÅ_¤ùªø¼e & ¬ïºŞ¤Õ®|
     If tube_diameter = 2.5 Then
         row_dist = 19.05
         stick_dist = 25.4
@@ -885,14 +884,15 @@ Public Sub heater() ' ä¸€èˆ¬ç†±æ’
         ' out_sb_out_d = 20
         row_dist = 33
         stick_dist = 38.1
-    Else
-        MsgBox "           è­¦å‘Š: " & Chr(10) & Label2.Caption & ": " & tube_diameter
+    ' TODO:
+    ' Else
+        ' error message
     End If
 
     fin_length = tube_num_stick * stick_dist
-    fin_width = tube_num_row * row_dist 
+    fin_width = tube_num_row * row_dist
 
-    ' é¢¨æ‰‡å­”å¾‘æ›ç®—é¢¨æ‰‡å¤§å°
+    ' ­·®°¤Õ®|´«ºâ­·®°¤j¤p
     If is_expand = "y" Then
         If fan_diameter = 228 Then
             fan_type = 9
@@ -950,66 +950,66 @@ Public Sub heater() ' ä¸€èˆ¬ç†±æ’
     dim_dist2 = 50
     dim_dist3 = 25
 
-    ' é¢¨æ–—æ¿å¸¸æ•¸
+    ' ­·¤æªO±`¼Æ
     f_v1 = 2
-    ' éš”æ¿å¸¸æ•¸
-    p_v1 = 11  ' é€£æ¥è™•å¯¬ 
+    ' ¹jªO±`¼Æ
+    p_v1 = 11  ' ³s±µ³B¼e
     p_v2 = 3
-    p_v3 = 20 ' éé°­ç‰‡ç©ºé–“æ‰£é™¤é ç•™ç©ºé–“
-    p_v4 = 6  ' èºçµ²å­”èˆ‡é‚Šç·£è·é›¢
-    ' å¤–ç«¯æ¿å¸¸æ•¸
+    p_v3 = 20 ' «DÅ_¤ùªÅ¶¡¦©°£¹w¯dªÅ¶¡
+    p_v4 = 6  ' Á³µ·¤Õ»PÃä½t¶ZÂ÷
+    ' ¥~ºİªO±`¼Æ
     o_v1 = 21
-    o_v2 = (tube_num_row-1)*row_dist + inner_dist + o_v1 + 2*thickness ' é¢¨æ–—æ¿ä¸Šä¸‹æ¿å¯¬åº¦
-    o_v3 = fin_length + 2*f_v1 + 2*thickness ' é¢¨æ–—ä½ç½®å¯¬åº¦
-    o_v4 = connect_width + thickness ' é¢¨æ–—æ¿é€£æ¥è™•å¯¬åº¦
+    o_v2 = (tube_num_row - 1) * row_dist + inner_dist + o_v1 + 2 * thickness ' ­·¤æªO¤W¤UªO¼e«×
+    o_v3 = fin_length + 2 * f_v1 + 2 * thickness ' ­·¤æ¦ì¸m¼e«×
+    o_v4 = connect_width + thickness ' ­·¤æªO³s±µ³B¼e«×
     o_v5 = 8 ' TODO:
-    o_v6 = 60  ' å¤–ç«¯æ¿ä¸Šæ–¹é€£çµè™•èºçµ²å­”
-    o_v7 = 29 ' å¸¸æ›´å‹• å¤–ç«¯æ¿ä¸‹æ–¹é€£æ¥è™•
+    o_v6 = 60 ' TODO:
+    o_v7 = 29 ' ±`§ó°Ê ¥~ºİªO¤U¤è³s±µ³B
     
     out_v1 = 5
 
-    ' ä¸€èˆ¬ç†±æ’ é¢¨æ–—æ¿
+    ' ¤@¯ë¼ö±Æ ­·¤æªO
     comp_start(0) = start(0): comp_start(1) = start(1) + 1500
-    comp_title = tube_num_row & "R" & tube_num_stick & "T" & "   " & efficient_dist &  "  m / m"
+    comp_title = tube_num_row & "R" & tube_num_stick & "T" & "   " & efficient_dist & "  m / m"
     ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
 
-    comp_length = efficient_dist + 2*o_v4
-    comp_width = o_v3 + 2*o_v2 + 2*o_v4
+    comp_length = efficient_dist + 2 * o_v4
+    comp_width = o_v3 + 2 * o_v2 + 2 * o_v4
 
     comp_start(0) = start(0) + 3000: comp_start(1) = start(1)
     fans_board comp_start, d1, o_v2, o_v3, o_v4, o_v5, o_v6, comp_width, d3
 
     comp_start(0) = comp_start(0): comp_start(1) = comp_start(1) - text_dist
-    comp_title = "é¢¨æ–—æ¿ " & thickness & "t " & material & "  " & comp_length & " X " & comp_width _ 
-                  & " X " & "1åª"
+    comp_title = "­·¤æªO " & thickness & "t " & material & "  " & comp_length & " X " & comp_width _
+                  & " X " & "1¥u"
     ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
 
-    ' ä¸€èˆ¬ç†±æ’ å…§ç«¯æ¿
+    ' ¤@¯ë¼ö±Æ ¤ººİªO
     comp_start(0) = start(0) + 2000: comp_start(1) = start(1) + 500
     inner_side_board comp_start, d2
 
     comp_start(0) = comp_start(0): comp_start(1) = comp_start(1) - text_dist
-    comp_title = "å…§ç«¯æ¿ " & thickness & "t " & partition_material & "  " & fin_length & " X " & fin_width _ 
-                  & " X " & "1åª"
+    comp_title = "¤ººİªO " & thickness & "t " & partition_material & "  " & fin_length & " X " & fin_width _
+                  & " X " & "1¥u"
     ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
 
-    ' ä¸€èˆ¬ç†±æ’ éš”æ¿
-    comp_length = fin_length + 2*p_v1
-    comp_width = inner_dist - p_v3 + 2*p_v1
+    ' ¤@¯ë¼ö±Æ ¹jªO
+    comp_length = fin_length + 2 * p_v1
+    comp_width = inner_dist - p_v3 + 2 * p_v1
 
     comp_start(0) = start(0): comp_start(1) = start(1)
     partition comp_start, p_v1, p_v2, p_v3, d2, p_v4
     
     comp_start(0) = comp_start(0): comp_start(1) = comp_start(1) - text_dist
-    comp_title = "éš”æ¿ " & thickness & "t " & material & "  " & comp_length & " X " & comp_width _ 
-                  & " X " & num_motor-1 & "åª"
+    comp_title = "¹jªO " & thickness & "t " & material & "  " & comp_length & " X " & comp_width _
+                  & " X " & num_motor - 1 & "¥u"
     ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
     
     
     
-    ' ä¸€èˆ¬ç†±æ’ å¤–ç«¯æ¿
-    comp_length = inner_dist + o_v1 + fin_width + 2*connect_width - p_v3
-    comp_width = fin_length + 2*f_v1 +  connect_width + o_v7
+    ' ¤@¯ë¼ö±Æ ¥~ºİªO
+    comp_length = inner_dist + o_v1 + fin_width + 2 * connect_width - p_v3
+    comp_width = fin_length + 2 * f_v1 + connect_width + o_v7
 
     comp_start(0) = start(0): comp_start(1) = start(1) + 500
     comp_start2(0) = start(0) + 1000: comp_start2(1) = start(1) + 500
@@ -1017,15 +1017,18 @@ Public Sub heater() ' ä¸€èˆ¬ç†±æ’
                      fin_length, fin_width, d2
 
     comp_start(0) = comp_start(0): comp_start(1) = comp_start(1) - text_dist
-    comp_title = "å¤–ç«¯æ¿ " & thickness & "t " & material & "  " & comp_length & " X " & comp_width _ 
-                  & " X " & "2åª"
+    comp_title = "¥~ºİªO " & thickness & "t " & material & "  " & comp_length & " X " & comp_width _
+                  & " X " & "2¥u"
     ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
+
+    ' MsgBox "»s¹Ï§¹¦¨"
+
 
 End Sub
 
 ' Private Sub CommandButton1_Click()
 '     '
-' MsgBox "æ‰¾åˆ°åœ–å±¤:"
+' MsgBox "§ä¨ì¹Ï¼h:"
 '     MsgBox material
 ' End Sub
 
@@ -1149,5 +1152,7 @@ End Sub
 Private Sub TextBox5_Change()
 
 End Sub
+
+
 
 
