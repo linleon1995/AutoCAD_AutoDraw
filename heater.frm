@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserForm1 
-   Caption         =   "UserForm1"
-   ClientHeight    =   10524
+   Caption         =   "Heater"
+   ClientHeight    =   9780.001
    ClientLeft      =   108
    ClientTop       =   456
-   ClientWidth     =   15144
+   ClientWidth     =   14628
    OleObjectBlob   =   "heater.frx":0000
    StartUpPosition =   1  '所屬視窗中央
 End
@@ -18,7 +18,7 @@ Attribute VB_Exposed = False
 
 
 
-Public tube_head As Double
+Public tube_head As String
 Public tube_diameter As Double
 Public tube_num_row As Double
 Public tube_num_stick As Double
@@ -70,6 +70,20 @@ Public fans_board_length As Double
 Public fans_board_width As Double
 Public fans_board_thickness As Double
 Public tube_hole_type As String
+Public outer_side_board_in_length As String
+Public num_inner_side_board As Double
+
+Public tube_num_row_array As Variant
+
+' Function Round_5(num As Integer, d As Integer) As Double
+'     Dim new_num  As Double
+'     new_num =
+'     If d > 0 Then
+'         num Mod (10^d)
+'     Else
+'     End If
+' End Function
+
 
 Public Sub AddRectCircles(ByVal start, ByVal radius, ByVal length, ByVal width)
     Dim p(2)  As Double
@@ -463,8 +477,8 @@ Public Sub AddTwoCrossRects(ByVal start, ByVal length, ByVal width, ByVal l1, By
 End Sub
 
 
-Public Sub fans_board(ByVal start, ByVal d1, ByVal o_v2, ByVal o_v3, ByVal o_v4, _
-                      ByVal o_v6, ByVal comp_width, ByVal d3, ByVal thickness)
+Public Sub fans_board(ByVal start, ByVal comp_length, ByVal comp_width, ByVal d1, ByVal o_v2, ByVal o_v3, _
+                      ByVal o_v4, ByVal o_v6, ByVal d3, ByVal thickness)
     Dim line_obj As AcadLine
     Dim p1(2) As Double
     Dim p2(2) As Double
@@ -474,7 +488,7 @@ Public Sub fans_board(ByVal start, ByVal d1, ByVal o_v2, ByVal o_v3, ByVal o_v4,
     Dim add_dim(4) As Double
     Dim text_loc(2) As Double
     Dim chordPoint(2) As Double, FarchordPoint(2) As Double
-    comp_length = efficient_dist + 2 * o_v4
+    ' comp_length = efficient_dist + 2*o_v4
 
     ' 鈑金
     ' TODO: complete AddHill dimension function
@@ -569,7 +583,7 @@ Public Sub fans_board(ByVal start, ByVal d1, ByVal o_v2, ByVal o_v3, ByVal o_v4,
     ' 風斗與馬達架螺絲孔
     comp = 4 - (Int(efficient_dist / num_motor) Mod 4)
     dist = Int(efficient_dist / num_motor) + comp
-    p1(0) = start(0) + comp_length / 2: p1(1) = start(1) + comp_width / 2
+    p1(0) = start(0) + comp_length / 2: p1(1) = start(1) + comp_width / 2 - o_v4
     p1(0) = p1(0) - (0.5 * num_motor - 0.5) * dist
     AddLinedCircles p1, fan_diameter / 2, dist, num_motor, 0
 
@@ -637,8 +651,8 @@ Public Sub fans_board(ByVal start, ByVal d1, ByVal o_v2, ByVal o_v3, ByVal o_v4,
 End Sub
 
 
-Public Sub inner_side_board(ByVal start, ByVal d)
-    Dim p(2) As Double, p2(2) As Double
+Public Sub inner_side_board(ByVal start, ByVal comp_length, ByVal comp_width, ByVal d)
+    Dim p(2) As Double, p2(2) As Double, p3(2) As Double, p4(2) As Double
     Dim text_loc(2) As Double
     Dim chordPoint(2) As Double, FarchordPoint(2) As Double
 
@@ -654,20 +668,48 @@ Public Sub inner_side_board(ByVal start, ByVal d)
     p(0) = start(0) - 0.5 * row_dist: p(1) = start(1) - 0.75 * stick_dist
 
     ' 外框
-    AddRect p, inner_side_board_length, inner_side_board_width
+    AddRect p, comp_length, comp_width
+
+    ' 分割線
+    num_split = UBound(tube_num_row_array) ' 分割數
+    If num_split > 0 Then ' 輸入一個數值以上，代表需要繪製分割線
+        p4(0) = p(0): p4(1) = p(1) + inner_side_board_width
+        p2(0) = p(0): p2(1) = p(1)
+        For i = 0 To num_split - 1
+            p2(0) = p2(0) + tube_num_row_array(i) * row_dist
+            p3(0) = p2(0): p3(1) = p2(1) + inner_side_board_width
+            
+            SelectActiveLayer "尺寸"
+            text_loc(0) = (p3(0) + p4(0)) / 2: text_loc(1) = p3(1) + dim_dist1
+            Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p3, p4, text_loc)
+            AcadDimAligned.TextHeight = dim_text_height1
+            AcadDimAligned.ArrowheadSize = arrow_size1
+            p4(0) = p3(0): p4(1) = p3(1)
+
+            SelectActiveLayer "鈑金"
+            Set line_obj = ThisDrawing.ModelSpace.AddLine(p2, p3)
+        Next
+        SelectActiveLayer "尺寸"
+
+        p4(0) = p3(0) + tube_num_row_array(num_split) * row_dist
+        text_loc(0) = (p3(0) + p4(0)) / 2: text_loc(1) = p3(1) + dim_dist1
+        Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p3, p4, text_loc)
+        AcadDimAligned.TextHeight = dim_text_height1
+        AcadDimAligned.ArrowheadSize = arrow_size1
+    End If
 
     ' 外框尺寸標註
     SelectActiveLayer "尺寸"
     p2(0) = p(0) + inner_side_board_length: p2(1) = p(1)
-    text_loc(0) = p(0) + 0.5 * inner_side_board_length: text_loc(1) = p(1) - dim_dist2
+    text_loc(0) = p(0) + 0.5 * inner_side_board_length: text_loc(1) = p(1) - dim_dist1
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p, p2, text_loc)
-    AcadDimAligned.TextHeight = text_height
-    AcadDimAligned.ArrowheadSize = arrow_size2
+    AcadDimAligned.TextHeight = dim_text_height1
+    AcadDimAligned.ArrowheadSize = arrow_size1
     p2(0) = p(0): p2(1) = p(1) + inner_side_board_width
-    text_loc(0) = p(0) - dim_dist2: text_loc(1) = p(1) + 0.5 * inner_side_board_width
+    text_loc(0) = p(0) - dim_dist1: text_loc(1) = p(1) + 0.5 * inner_side_board_width
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p, p2, text_loc)
-    AcadDimAligned.TextHeight = text_height
-    AcadDimAligned.ArrowheadSize = arrow_size2
+    AcadDimAligned.TextHeight = dim_text_height1
+    AcadDimAligned.ArrowheadSize = arrow_size1
 
     ' 銅管孔尺寸標註
     ' p2(0) = start(0): p2(1) = start(1) + (tube_num_stick-1-1.5)*stick_dist
@@ -697,9 +739,8 @@ Public Sub inner_side_board(ByVal start, ByVal d)
 End Sub
 
 
-Public Sub partition(ByVal start, ByVal v1, ByVal v2, ByVal v3, ByVal d1, ByVal dist1)
-    Dim comp_length As Double
-    Dim comp_width As Double
+Public Sub partition(ByVal start, ByVal comp_length, ByVal comp_width, ByVal v1, ByVal v2, _
+                     ByVal v3, ByVal d1, ByVal dist1)
     Dim p1(2) As Double: Dim p2(2) As Double
     Dim text_loc(2) As Double
     Dim center(2) As Double
@@ -707,18 +748,12 @@ Public Sub partition(ByVal start, ByVal v1, ByVal v2, ByVal v3, ByVal d1, ByVal 
     Dim leaderLen As Integer
 
     ' 鈑金
-    comp_length = fin_length + 2 * v1
-    comp_width = inner_dist - v3 + 2 * v1
-    ' comp_width = Int(comp_width+1)
-
-    ' start(0) = layout_origin + layout_range
-    ' start(1) = layout_origin + layout_range
-
     AddTwoCrossRects start, comp_length, comp_width, v1, v1, v1, v1, _
                      dim_dist:=dim_dist1, text_height:=dim_text_height1, arrow_size:=arrow_size
 
     ' 螺絲
-    p1(0) = start(0) + v1 + (fin_length - screw_dist) / 2: p1(1) = start(1) + comp_width - dist1
+    x = (comp_length - 2 * v1 - screw_dist) / 2
+    p1(0) = start(0) + v1 + x: p1(1) = start(1) + comp_width - dist1
     AddLinedCircles p1, d1 / 2, screw_dist / (num_part_screw - 1), num_part_screw, 0, _
                     text_dist:=dim_dist2, text_dir:=1, text_height:=dim_text_height2, arrow_size1:=arrow_size2
 
@@ -730,15 +765,15 @@ Public Sub partition(ByVal start, ByVal v1, ByVal v2, ByVal v3, ByVal d1, ByVal 
     dim_obj.TextHeight = dim_text_height2
     dim_obj.ArrowheadSize = arrow_size2
 
-    x = (fin_length - screw_dist) / 2
+    ' x = (fin_length - screw_dist) / 2
     p2(0) = p1(0) - x: p2(1) = p1(1)
     text_loc(0) = (p1(0) + p2(0)) / 2: text_loc(1) = p1(1) + dim_dist2
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p2, text_loc)
     AcadDimAligned.TextHeight = dim_text_height2
     AcadDimAligned.ArrowheadSize = arrow_size2
 
-    p1(0) = p1(0) + fin_length - x
-    p2(0) = p2(0) + fin_length - x
+    p1(0) = p1(0) + comp_length - 2 * v1 - x
+    p2(0) = p2(0) + comp_length - 2 * v1 - x
     text_loc(0) = (p1(0) + p2(0)) / 2: text_loc(1) = p1(1) + dim_dist2
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p2, text_loc)
     AcadDimAligned.TextHeight = dim_text_height2
@@ -747,9 +782,9 @@ Public Sub partition(ByVal start, ByVal v1, ByVal v2, ByVal v3, ByVal d1, ByVal 
 End Sub
 
 
-Public Sub outer_side_board(ByVal start2, ByVal v1, ByVal v2, ByVal v3, ByVal v4, _
-                            ByVal v5, ByVal v6, ByVal fin_length, ByVal fin_width, ByVal d1, _
-                            ByVal thickness)
+Public Sub outer_side_board(ByVal start2, ByVal comp_length, ByVal comp_width, ByVal v1, _
+                            ByVal v2, ByVal v3, ByVal v4, ByVal v5, ByVal v6, ByVal fin_length, _
+                            ByVal fin_width, ByVal d1, ByVal thickness, ByVal d2)
     Dim p1(2) As Double, p2(2) As Double, p3(2) As Double
     Dim reflect_point(2) As Double
     Dim line_obj As AcadLine
@@ -757,21 +792,18 @@ Public Sub outer_side_board(ByVal start2, ByVal v1, ByVal v2, ByVal v3, ByVal v4
     Dim chordPoint(2) As Double, FarchordPoint(2) As Double
     Dim start(2) As Double
 
-    comp_length = inner_dist + v3 + (tube_num_row - 1) * row_dist + 2 * connect_width
-    comp_width = fin_length + connect_width + v1
+    ' comp_length = inner_dist + v3 + (tube_num_row-1)*row_dist + 2*connect_width
+    ' comp_width = fin_length + connect_width + v1
 
-    ' start2(0) = layout_origin + layout_range
-    ' start2(1) = layout_origin + layout_range
-
-    ' TODO: 備註??
-    If comp_width - Int(comp_width) = 0 Then
-        tmp = comp_width + 2 * v2
-    Else
-        tmp = Int(comp_width + 2 * v2 + 1)
-    End If
-    ext = (tmp - comp_width) / 2
-    comp_width = tmp
-    
+    ' ' TODO: 備註??
+    ' If comp_width - Int(comp_width) = 0 Then
+    '     tmp = comp_width + 2*v2
+    ' Else
+    '     tmp =  Int(comp_width + 2*v2 + 1)
+    ' End If
+    ' ext = (tmp-comp_width)/2
+    ' comp_width = tmp
+    ext = (comp_width - v1 - connect_width - fin_length) / 2
     
     ' TODO: 程式 global變數與整體規劃 各部件長寬是否分開定義並可被用於主程式呼叫?
     ' outer_side_board_width = comp_width - connect_width - v1
@@ -826,12 +858,12 @@ Public Sub outer_side_board(ByVal start2, ByVal v1, ByVal v2, ByVal v3, ByVal v4
     ' 焊面
     SelectActiveLayer "鈑金"
     p1(0) = start2(0) + comp_length - connect_width / 2: p1(1) = start2(1) + v1 + v5
-    AddLinedCircles p1, d1 / 2, fin_length + 2 * v2 - 2 * v5, 2, 1
+    AddLinedCircles p1, d1 / 2, comp_width - v1 - connect_width - 2 * v5, 2, 1
 
     ' 穿面
     If tube_hole_type = "橢圓孔" Then
         reflect_point(0) = p1(0) - 2 * (p1(0) - middle): reflect_point(1) = p1(1)
-        AddLinedCircles reflect_point, d1 / 2, fin_length + 2 * v2 - 2 * v5, 2, 1
+        AddLinedCircles reflect_point, d1 / 2, comp_width - v1 - connect_width - 2 * v5, 2, 1
     End If
     
     SelectActiveLayer "尺寸"
@@ -865,44 +897,51 @@ Public Sub outer_side_board(ByVal start2, ByVal v1, ByVal v2, ByVal v3, ByVal v4
     p3(0) = p1(0) - v6: p3(1) = p1(1)
     text_loc(0) = (p1(0) + p3(0)) / 2: text_loc(1) = p1(1) + dim_dist2
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p3, text_loc)
-    AcadDimAligned.TextHeight = dim_text_height1
-    AcadDimAligned.ArrowheadSize = arrow_size1
+    AcadDimAligned.TextHeight = dim_text_height2
+    AcadDimAligned.ArrowheadSize = arrow_size2
 
-    ' 長螺絲孔
+    ' 下方連接處螺絲孔
     SelectActiveLayer "鈑金"
     ' TODO: 20 12 8
     ' AMADA 橢圓刀孔徑 Phi 8 X 12
     max_d = 12
-    d2 = 8
+    d2 = 8.45
     x1 = 20
     x2 = 8
     x3 = 10
     ' 焊面
+    ' p1(0) = start2(0) +  connect_width + x1: p1(1) = start2(1) + x2
+    ' AddArcwithLines p1, d2/2, max_d
+    ' p3(0) = p1(0) + comp_length - 2*connect_width - x1 - x3: p3(1) = p1(1)
+    ' AddArcwithLines p3, d2/2, max_d
+    
     p1(0) = start2(0) + connect_width + x1: p1(1) = start2(1) + x2
-    AddArcwithLines p1, d2 / 2, max_d
-    p3(0) = p1(0) + comp_length - 2 * connect_width - x1 - x3: p3(1) = p1(1)
-    AddArcwithLines p3, d2 / 2, max_d
+    AddLinedCircles start:=p1, radius:=d2 / 2, distance:=outer_side_board_in_length - x1 - x3, num_circle:=2, direction:=0, _
+                    text_dist:=dim_dist2, text_dir:=3, text_height:=dim_text_height2, _
+                    arrow_size1:=arrow_size1
+    p3(0) = p1(0) + outer_side_board_in_length - x1 - x3: p3(1) = p1(1)
 
-    ' 長螺絲孔標註
+    ' 下方連接處螺絲孔標註
     SelectActiveLayer "尺寸"
-    text_loc(0) = (p1(0) + p3(0)) / 2: text_loc(1) = p1(1) - dim_dist3
-    Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p3, text_loc)
-    AcadDimAligned.TextHeight = dim_text_height2
-    AcadDimAligned.ArrowheadSize = arrow_size2
-
     p2(0) = p1(0) - x1: p2(1) = p1(1)
-    text_loc(0) = (p1(0) + p2(0)) / 2: text_loc(1) = p1(1) - dim_dist3
+    text_loc(0) = (p1(0) + p2(0)) / 2: text_loc(1) = p1(1) - dim_dist2
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p2, text_loc)
     AcadDimAligned.TextHeight = dim_text_height2
     AcadDimAligned.ArrowheadSize = arrow_size2
 
+    FarchordPoint(0) = p1(0) - d2 / 2 / Sqr(2): FarchordPoint(1) = p1(1) - d2 / 2 / Sqr(2)
+    chordPoint(0) = p1(0) + d2 / 2 / Sqr(2): chordPoint(1) = p1(1) + d2 / 2 / Sqr(2)
+    Set dim_obj = ThisDrawing.ModelSpace.AddDimDiametric(chordPoint, FarchordPoint, LeaderLength:=5)
+    dim_obj.TextHeight = dim_text_height2
+    dim_obj.ArrowheadSize = arrow_size2
+
     p2(0) = p3(0) + x3: p2(1) = p3(1)
-    text_loc(0) = (p3(0) + p2(0)) / 2: text_loc(1) = p3(1) - dim_dist3
+    text_loc(0) = (p3(0) + p2(0)) / 2: text_loc(1) = p3(1) - dim_dist2
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p3, p2, text_loc)
     AcadDimAligned.TextHeight = dim_text_height2
     AcadDimAligned.ArrowheadSize = arrow_size2
 
-    p2(0) = p3(0): p2(1) = p3(1) - d2
+    p2(0) = p3(0): p2(1) = p3(1) - x2
     text_loc(0) = p3(0) - dim_dist3: text_loc(1) = (p3(1) + p2(1)) / 2
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p3, p2, text_loc)
     AcadDimAligned.TextHeight = dim_text_height2
@@ -917,19 +956,19 @@ Public Sub outer_side_board(ByVal start2, ByVal v1, ByVal v2, ByVal v3, ByVal v4
         reflect_point(0) = p3(0) - 2 * (p3(0) - middle): reflect_point(1) = p3(1)
         AddArcwithLines reflect_point, d2 / 2, max_d
     End If
-    
 
-    ' 長螺絲孔 標註
 
     ' 銅管孔
     p1(0) = start2(0) + connect_width + inner_dist: p1(1) = start2(1) + v1 + ext + stick_dist * 3 / 4
     AddFinCircles p1, tube_num_row, tube_num_stick, row_dist, stick_dist, out_sb_out_d
 
-    SelectActiveLayer "螺絲"
-    p2(0) = p1(0): p2(1) = p1(1) + 1.5 * stick_dist
-    AddFinCircles p2, tube_num_row, 1, row_dist, stick_dist, d1
-    p2(0) = p1(0): p2(1) = p1(1) + (tube_num_stick - 1 - 1.5) * stick_dist
-    AddFinCircles p2, tube_num_row, 1, row_dist, stick_dist, d1
+    If num_inner_side_board > 0 Then
+        SelectActiveLayer "螺絲"
+        p2(0) = p1(0): p2(1) = p1(1) + 1.5 * stick_dist
+        AddFinCircles p2, tube_num_row, 1, row_dist, stick_dist, d1
+        p2(0) = p1(0): p2(1) = p1(1) + (tube_num_stick - 1 - 1.5) * stick_dist
+        AddFinCircles p2, tube_num_row, 1, row_dist, stick_dist, d1
+    End If
 
     SelectActiveLayer "尺寸"
     chordPoint(0) = p2(0) - d1 / 2 / Sqr(2): chordPoint(1) = p2(1) - d1 / 2 / Sqr(2)
@@ -947,7 +986,7 @@ Public Sub outer_side_board(ByVal start2, ByVal v1, ByVal v2, ByVal v3, ByVal v4
     
     p1(0) = p1(0) + (tube_num_row - 1) * row_dist: p1(1) = p1(1) + (tube_num_stick - 1) * stick_dist
     p3(0) = p1(0) + v3: p3(1) = p1(1)
-    text_loc(0) = (p1(0) + p3(0)) / 2: text_loc(1) = p1(1) + dim_dist3
+    text_loc(0) = (p1(0) + p3(0)) / 2: text_loc(1) = p1(1) + dim_dist2 + 0.25 * stick_dist + connect_width / 2
     Set AcadDimAligned = ThisDrawing.ModelSpace.AddDimAligned(p1, p3, text_loc)
     AcadDimAligned.TextHeight = dim_text_height2
     AcadDimAligned.ArrowheadSize = arrow_size2
@@ -959,12 +998,10 @@ End Sub
 
 Public Sub heater() ' 一般熱排
     Set lay1 = ThisDrawing.Layers.Add("鈑金") ' 增加一個名為“鈑金”的圖層
-    Set lay2 = ThisDrawing.Layers.Add("主尺寸") ' 增加一個名為“主尺寸”的圖層
-    lay2.color = 1 ' 圖層設置為紅色
-    Set lay3 = ThisDrawing.Layers.Add("尺寸") ' 增加一個名為“尺寸”的圖層
-    lay3.color = 3 ' 圖層設置為綠色
-    Set lay4 = ThisDrawing.Layers.Add("螺絲") ' 增加一個名為“螺絲”的圖層
-    lay4.color = 6 ' 圖層設置為洋紅
+    Set lay2 = ThisDrawing.Layers.Add("尺寸") ' 增加一個名為“尺寸”的圖層
+    lay2.color = 3 ' 圖層設置為綠色
+    Set lay3 = ThisDrawing.Layers.Add("螺絲") ' 增加一個名為“螺絲”的圖層
+    lay3.color = 6 ' 圖層設置為洋紅
     ThisDrawing.ActiveLayer = lay1 ' 將“鈑金”設置為當前圖層
 
     On Error Resume Next ' 如果有錯誤, 不管他
@@ -985,31 +1022,82 @@ Public Sub heater() ' 一般熱排
     ' TODO: 輸入不合法 報錯
     ' TODO: 管徑 下拉式選單
     
+    ' ' 6HP 5/16'' 5R 16T 1140 P19.05
+    ' tube_diameter = 2.5
+    ' tube_num_row = 5
+    ' tube_num_stick = 16
+    ' efficient_dist = 1140
+    ' material = "錏板"
 
-    ' 6HP 5/16'' 5R 16T 1140 P19.05
-    tube_head = 19.05
-    tube_diameter = 2.5
-    tube_num_row = 5
-    tube_num_stick = 16
-    efficient_dist = 1140
-    fan_diameter = 295
-    motor_frame_diagonal = 385
-    ' thickness = 1
-    material = "錏板"
+    ' fans_board_thickness = 1.0
+    ' fan_diameter = 295
+    ' num_motor = 3
+    ' motor_frame_diagonal = 385
+    ' num_screw = 4
+    ' screw_dist = 333
+    ' num_part_screw = 3
+    ' is_expand = "抽唇"
+
+    ' outer_side_board_in_length = 171
+    ' connect_width = 11
+    ' out_sb_out_d = 8.45
+    ' tube_hole_type = "圓孔"
+    ' out_sb_in_d = 8.45
+    ' outer_side_board_thickness = 1.0
+    ' inner_side_board_thickness = 0.8
+
+
+    ' ' 10HP 3/8'' 5R 20T 1454 P22
+    ' tube_diameter = 3
+    ' tube_num_row = 5
+    ' tube_num_stick = 20
+    ' efficient_dist = 1454
+    ' material = "錏板"
+
+    ' fans_board_thickness = 1.0
+    ' fan_diameter = 295
+    ' num_motor = 4
+    ' motor_frame_diagonal = 385
+    ' num_screw = 4
+    ' screw_dist = 405
+    ' num_part_screw = 3
+    ' is_expand = "抽唇"
+
+    ' outer_side_board_in_length = 210
+    ' connect_width = 14
+    ' out_sb_out_d = 14
+    ' tube_hole_type = "橢圓孔"
+    ' out_sb_in_d = 13.2
+    ' outer_side_board_thickness = 1.0
+    ' inner_side_board_thickness = 2.0
+
+    ' tube_num_row_array = Split("3/2", "/")
+
     
+    ' ' ' 2HP 5/16'' 5R 15T 390 P19.05
+    ' tube_diameter = 2.5
+    ' tube_num_row = 5
+    ' tube_num_stick = 15
+    ' efficient_dist = 390
+    ' material = "錏板"
 
-    num_motor = 3
-    inner_dist = 171
-    connect_width = 11
-    num_screw = 4
-    screw_dist = 333
-    num_part_screw = 3
-    out_sb_out_d = 8.45
-    num_inner_side_board = 3
-    tube_hole_type = "橢圓孔"
+    ' fans_board_thickness = 0.8
+    ' fan_diameter = 295
+    ' num_motor = 1
+    ' motor_frame_diagonal = 385
+    ' num_screw = 4
+    ' screw_dist = 315
+    ' num_part_screw = 30
+    ' is_expand = "抽唇"
 
-    ' 10HP 3/8'' 5R 20T 1454 P19.05
-   
+    ' outer_side_board_in_length = 176
+    ' connect_width = 11
+    ' out_sb_out_d = 8.45
+    ' tube_hole_type = "圓孔"
+    ' ' out_sb_in_d =
+    ' outer_side_board_thickness = 1.0
+    ' inner_side_board_thickness = 20
+
 
     ' TODO: 考慮以0.5為級距去表示板厚 e.g., 0.8->1.0, 1.6->1.5
     ' real_thickness = thickness
@@ -1021,29 +1109,21 @@ Public Sub heater() ' 一般熱排
         row_dist = 19.05
         stick_dist = 25.4
         in_sb_d = 8.45
-        ' out_sb_in_d = 13.2
-        ' out_sb_out_d = 14
     ElseIf tube_diameter = 3 Then
         in_sb_d = 10.2
-        ' out_sb_in_d = 13.2
-        ' out_sb_out_d = 14
-        If tube_head = 22 Then
+        If tube_head = "P22" Then
             row_dist = 22
             stick_dist = 25.4
-        ElseIf tube_head = 19.05 Then
+        ElseIf tube_head = "P19.05" Then
             row_dist = 19.05
             stick_dist = 25.4
         End If
     ElseIf tube_diameter = 4 Then
         in_sb_d = 13.2
-        ' out_sb_in_d = 14
-        ' out_sb_out_d = 16.5
         row_dist = 33
         stick_dist = 38.1
     ElseIf tube_diameter = 5 Then
         in_sb_d = 16.5
-        ' out_sb_in_d = 20
-        ' out_sb_out_d = 20
         row_dist = 33
         stick_dist = 38.1
     Else
@@ -1054,50 +1134,31 @@ Public Sub heater() ' 一般熱排
     fin_width = tube_num_row * row_dist
 
     ' 風扇孔徑換算風扇大小
-    If is_expand = "抽唇" Then
-        If fan_diameter = 228 Then
-            fan_type = 9
-        ElseIf fan_diameter = 246 Then
-            fan_type = 10
-        ElseIf fan_diameter = 295 Then
-            fan_type = 12
-        ElseIf fan_diameter = 329 Then
-            fan_type = 14
-        ElseIf fan_diameter = 389 Then
-            fan_type = 16
-        ElseIf fan_diameter = 425 Then
-            fan_type = 18
-        ElseIf fan_diameter = 485 Then
-            fan_type = 20
-        ElseIf fan_diameter = 571 Then
-            fan_type = 24
-        Else
-            fan_type = -1
-        End If
-    ElseIf is_expand = "不抽唇" Then
-        If fan_diameter = 243 Then
-            fan_type = 9
-        ElseIf fan_diameter = 264 Then
-            fan_type = 10
-        ElseIf fan_diameter = 312 Then
-            fan_type = 12
-        ElseIf fan_diameter = 357 Then
-            fan_type = 14
-        ElseIf fan_diameter = 422 Then
-            fan_type = 16
-        ElseIf fan_diameter = 465 Then
-            fan_type = 18
-        ElseIf fan_diameter = 525 Then
-            fan_type = 20
-        ElseIf fan_diameter = 611 Then
-            fan_type = 24
-        Else
-            fan_type = -1
-        End If
+    is_expand = "抽唇"
+    If fan_diameter = 228 Then
+        fan_type = 9
+    ElseIf fan_diameter = 246 Then
+        fan_type = 10
+    ElseIf fan_diameter = 295 Then
+        fan_type = 12
+    ElseIf fan_diameter = 329 Then
+        fan_type = 14
+    ElseIf fan_diameter = 389 Then
+        fan_type = 16
+    ElseIf fan_diameter = 425 Then
+        fan_type = 18
+    ElseIf fan_diameter = 485 Then
+        fan_type = 20
+    ElseIf fan_diameter = 571 Then
+        fan_type = 24
+    Else
+        fan_type = -1
+        is_expand = "不抽唇"
     End If
     d1 = 5
     d2 = 3.2
     d3 = 11.5
+    d4 = 8.45
 
     screw1 = 5
     screw2 = 3.2
@@ -1112,19 +1173,20 @@ Public Sub heater() ' 一般熱排
     dim_dist3 = 25
 
     
-
     ' 風斗板常數
     f_v1 = 2 ' 伸縮
+    f_v2 = 1 ' 伸縮
     ' 隔板常數
     p_v1 = 11  ' 連接處寬
     p_v2 = 3
-    p_v3 = 20 ' 非鰭片空間扣除預留空間
+    p_v3 = 20 ' 非鰭片預留空間
     p_v4 = 6  ' 螺絲孔與邊緣距離
     ' 外端板常數
     o_v1 = 21
-    inner_dist = inner_dist - row_dist * (tube_num_row - 1) - o_v1
-    o_v2 = (tube_num_row - 1) * row_dist + inner_dist + o_v1 + 2 * fans_board_thickness ' 風斗板上下板寬度
-    o_v3 = fin_length + 2 * f_v1 + 2 * fans_board_thickness ' 風斗位置寬度
+    inner_dist = outer_side_board_in_length - row_dist * (tube_num_row - 1) - o_v1
+    o_v2 = outer_side_board_in_length + 2 * outer_side_board_thickness ' 風斗板上下板寬度
+    o_v2 = Int(o_v2 + 1)
+    
     ' 風斗板連接處寬度
     If efficient_dist < 1000 Then
         o_v4 = 12
@@ -1135,7 +1197,7 @@ Public Sub heater() ' 一般熱排
     End If
     o_v6 = 60  ' 外端板上方連結處螺絲孔
     o_v7 = 29 ' 常更動 外端板下方連接處 設為固定29
-    o_v8 = o_v4 / 2 - fans_board_thickness
+    o_v8 = o_v4 / 2 - outer_side_board_thickness
 
     partition_material = "鋁平板"
     power = tube_num_row * tube_num_stick * efficient_dist / 4 / 11 / 330
@@ -1156,66 +1218,84 @@ Public Sub heater() ' 一般熱排
         tube_diameter_r = tube_diameter * 2 & "/" & 16 & "''"
     End If
 
-    comp_start(0) = start(0)
-    comp_start(1) = start(1) + partition_width + outer_side_board_width + 3 * layout_range
-    comp_title = power & " HP" & Space(3) & tube_diameter_r & Space(3) & tube_num_row & "R" & _
-                 tube_num_stick & "T" & Space(3) & efficient_dist & "  m / m" & Space(3) & _
-                 "(p" & tube_head & ")"
-    ThisDrawing.ModelSpace.AddText comp_title, comp_start, 70
+    
 
+    ' TODO: 所有長寬由全局變數改為個別輸入函式 for reusing purpose
     inner_side_board_length = fin_width
     inner_side_board_width = fin_length
-    outer_side_board_length = inner_dist + o_v1 + (tube_num_row - 1) * row_dist + 2 * connect_width
-    outer_side_board_width = fin_length + 2 * f_v1 + connect_width + o_v7
-    partition_length = fin_length + 2 * p_v1
-    partition_width = inner_dist - p_v3 + 2 * p_v1
-    fans_board_length = efficient_dist + 2 * o_v4
+    outer_side_board_length = outer_side_board_in_length + 2 * connect_width
+    outer_side_board_width = Int(fin_length + 2 * f_v1 + 1) + connect_width + o_v7
+
+    o_v3 = outer_side_board_width + 2 * f_v2 + 2 * outer_side_board_thickness - o_v7 - connect_width
+    o_v3 = Format(o_v3, ".") ' 風斗位置寬度
+
+    fans_board_length = efficient_dist + 2 * connect_width + 2 * outer_side_board_thickness
+    fans_board_length = Int(fans_board_length + 1)
     fans_board_width = o_v3 + 2 * o_v2 + 2 * o_v4
+    ' partition_length = fin_length + 2*p_v1
+    partition_length = o_v3 - 2 * fans_board_thickness - 2 * f_v2
+    partition_length = Int(partition_length + 1) + 2 * p_v1
+    partition_width = Int(inner_dist - p_v3 + 1) + 2 * p_v1
+    
+    comp_start(0) = start(0)
+    comp_start(1) = start(1) + partition_width + fans_board_width + 2 * layout_range
+    comp_title = Format(power, ".00") & " HP" & Space(3) & tube_diameter_r & Space(3) & tube_num_row & "R" & _
+                 tube_num_stick & "T" & Space(3) & efficient_dist & "  m / m"
+    If tube_diameter = 3 Then
+        comp_title = comp_title & Space(3) & "(" & tube_head & ")"
+    End If
+    ThisDrawing.ModelSpace.AddText comp_title, comp_start, 70
 
     ' 一般熱排 內端板
     If num_inner_side_board > 0 Then
         comp_start(0) = start(0) + outer_side_board_length + layout_range
         comp_start(1) = start(1) + partition_width + layout_range
-        inner_side_board comp_start, d2
+        inner_side_board comp_start, inner_side_board_length, inner_side_board_width, d2
         ' 文字
         comp_start(0) = comp_start(0): comp_start(1) = comp_start(1) - text_dist
-        comp_title = "內端板 " & inner_side_board_thickness & "t " & partition_material
+        comp_title = "內端板 " & Format(inner_side_board_thickness, "0.0") & "t " & partition_material
         ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
-        comp_start(1) = comp_start(1) - text_height - 30
-        comp_title = inner_side_board_length & " X " & inner_side_board_width & " X " & _
-                     num_inner_side_board & "只"
-        ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
+        For Each in_num_row In tube_num_row_array
+            comp_start(1) = comp_start(1) - text_height - 30
+            comp_title = inner_side_board_length / tube_num_row * in_num_row & " X " & _
+                         inner_side_board_width & " X " & _
+                         num_inner_side_board & "只"
+            ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
+        Next
     End If
     
 
     ' 一般熱排 外端板
     comp_start(0) = start(0)
     comp_start(1) = start(1) + partition_width + layout_range
-    outer_side_board comp_start, o_v7, f_v1, o_v1, p_v3, o_v8, o_v6, _
-                     fin_length, fin_width, d2, outer_side_board_thickness
+    outer_side_board comp_start, outer_side_board_length, outer_side_board_width, o_v7, _
+                     f_v1, o_v1, p_v3, o_v8, o_v6, fin_length, fin_width, d2, _
+                     outer_side_board_thickness, d4
 
     ' comp_start(0) = comp_start(0) - outer_side_board_length - layout_range
     comp_start(1) = comp_start(1) - text_dist
     If tube_hole_type = "橢圓孔" Then
         folding = "正折"
+        num_inner_side_board = 2
     ElseIf tube_hole_type = "圓孔" Then
         folding = "文武邊"
+        num_inner_side_board = 0
     End If
-    comp_title = "外端板 " & outer_side_board_thickness & "t " & material & "  " & folding
+    comp_title = "外端板 " & Format(outer_side_board_thickness, "0.0") & "t " & material & "  " & folding
     ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
     comp_start(1) = comp_start(1) - text_height - 30
     comp_title = outer_side_board_length & " X " & outer_side_board_width & " X " & "2只"
     ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
     ' TODO: 暫時使用fans_board_thickness
-    o_v3 = Int(outer_side_board_width + 2 * fans_board_thickness + 2 * f_v1)
+    ' o_v3 = Int(outer_side_board_width + 2*fans_board_thickness + 2*f_v1)
 
     ' 一般熱排 隔板
     If num_motor > 1 Then
         comp_start(0) = start(0): comp_start(1) = start(1)
-        partition comp_start, p_v1, p_v2, p_v3, d2, p_v4
+        partition comp_start, partition_length, partition_width, p_v1, p_v2, p_v3, d2, p_v4
         
         comp_start(0) = comp_start(0): comp_start(1) = comp_start(1) - text_dist
-        comp_title = "隔板 " & fans_board_thickness & "t " & material & "  " & "正折"
+        comp_title = "隔板 " & Format(fans_board_thickness, "0.0") & "t " & material & "  " & "正折"
         ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
         comp_start(1) = comp_start(1) - text_height - 30
         comp_title = partition_length & " X " & partition_width & " X " & num_motor - 1 & "只"
@@ -1223,16 +1303,25 @@ Public Sub heater() ' 一般熱排
     End If
     
     ' 一般熱排 風斗板
-    ' TODO:  更精確的距離計算
-    comp_start(0) = start(0) + outer_side_board_length + layout_range
-    If num_inner_side_board > 0 Then
-        comp_start(0) = comp_start(0) + inner_side_board_length + layout_range
+    ' TODO:  以start為推斷基準 不要以隔板起點
+    If num_motor > 1 Then
+        If num_inner_side_board > 0 Then
+            comp_start(0) = comp_start(0) + inner_side_board_length + outer_side_board_length + _
+                            2 * layout_range
+        Else
+            comp_start(0) = comp_start(0) + partition_length + layout_range
+        End If
+        comp_start(1) = start(1)
+    Else
+        comp_start(0) = start(0) + outer_side_board_length + layout_range
+        comp_start(1) = start(1) + partition_width + layout_range
     End If
-    comp_start(1) = start(1)
-    fans_board comp_start, d1, o_v2, o_v3, o_v4, o_v6, fans_board_width, d3, fans_board_thickness
+    
+    fans_board comp_start, fans_board_length, fans_board_width, d1, o_v2, o_v3, o_v4, o_v6, _
+                           d3, fans_board_thickness
 
     comp_start(0) = comp_start(0): comp_start(1) = comp_start(1) - text_dist
-    comp_title = "風斗板 " & fans_board_thickness & "t " & material & "  " & "請參照折面"
+    comp_title = "風斗板 " & Format(fans_board_thickness, "0.0") & "t " & material & "  " & "請參照折面"
     ThisDrawing.ModelSpace.AddText comp_title, comp_start, text_height
     comp_start(1) = comp_start(1) - text_height - 30
     comp_title = fans_board_length & " X " & fans_board_width & " X " & "1只"
@@ -1244,79 +1333,110 @@ End Sub
 Private Sub CommandButton1_Click()
     UserForm1.Hide
 
-    t1 = Val(ComboBox6.Text)
-    t2 = Val(TextBox2.Text)
-    t3 = Val(TextBox3.Text)
+    t2 = ComboBox2.Text
+    t3 = TextBox3.Text
+    ' t3 = Val(TextBox3.Text)
     t4 = Val(TextBox4.Text)
     t5 = Val(TextBox5.Text)
-    t6 = Val(TextBox6.Text)
-    t7 = Val(TextBox7.Text)
+    t6 = ComboBox6.Text
+    t7 = Val(ComboBox7.Text)
     t8 = Val(TextBox8.Text)
     t9 = Val(TextBox9.Text)
-    ' t10 = Val(TextBox10.Text)
-    ' t11 = Val(TextBox11.Text)
-    t12 = ComboBox4.Text
-    t14 = Val(TextBox14.Text)
+    t10 = Val(TextBox10.Text)
+    t11 = Val(TextBox11.Text)
+    t12 = Val(TextBox12.Text)
+    t13 = Val(TextBox13.Text)
+    ' t14 = ComboBox14.Text
     t15 = Val(TextBox15.Text)
     t16 = Val(TextBox16.Text)
     t17 = Val(TextBox17.Text)
-    t18 = ComboBox1.Text
-    t19 = Val(TextBox20.Text)
-    t20 = Val(TextBox22.Text)
-    t21 = ComboBox2.Text
-    t23 = Val(TextBox23.Text)
-    t24 = Val(TextBox24.Text)
-    t25 = Val(TextBox25.Text)
+    t18 = ComboBox18.Text
+    ' t19 = Val(TextBox19.Text)
+    t20 = Val(ComboBox20.Text)
+    ' t21 = Val(TextBox21.Text)
+    t22 = Val(ComboBox22.Text)
 
-    tube_head = t1
-    tube_diameter = t2
-    tube_num_row = t3
+    tmp = Split(t2, "  ")
+    tube_diameter = tmp(0)
+    If tube_diameter = 3 Then
+        tube_head = tmp(1)
+    End If
+
+    tube_num_row_array = Split(t3, "/")
+    tube_num_row = 0
+    For Each r In tube_num_row_array
+        tube_num_row = tube_num_row + r
+    Next
+
     tube_num_stick = t4
     efficient_dist = t5
-    fan_diameter = t6
-    motor_frame_diagonal = t9
-    material = t12
-    num_motor = t8
-    inner_dist = t7
-    connect_width = t14
-    num_screw = t15
-    screw_dist = t16
-    num_part_screw = t17
-    is_expand = t18
-    out_sb_out_d = t19
-    num_inner_side_board = t20
-    tube_hole_type = t21
+    material = t6
 
-    outer_side_board_thickness = t23
-    fans_board_thickness = t24
-    inner_side_board_thickness = t25
-    
+    fans_board_thickness = t7
+    fan_diameter = t8
+    num_motor = t9
+    motor_frame_diagonal = t10
+    num_screw = t11
+    screw_dist = t12
+    num_part_screw = t13
+
+    outer_side_board_in_length = t15
+    connect_width = t16
+    out_sb_out_d = t17
+    tube_hole_type = t18
+    out_sb_in_d = t19
+    outer_side_board_thickness = t20
+    inner_side_board_thickness = t22
     
     heater
 End Sub
 
 
-
-Private Sub TextBox16_Change()
+Private Sub ComboBox1_Change()
 
 End Sub
 
+
 Private Sub UserForm_Activate()
-    ComboBox1.AddItem "不抽唇"
+    ComboBox2.AddItem "2.5"
+    ComboBox2.AddItem "3.0  P19.05"
+    ComboBox2.AddItem "3.0  P22"
+    ComboBox2.AddItem "4.0"
+    ComboBox2.AddItem "5.0"
 
-    ComboBox2.AddItem "橢圓孔"
+    ComboBox6.AddItem "錏板"
+    ComboBox6.AddItem "鋁花板"
+    ComboBox6.AddItem "鋁平板"
+    ComboBox6.AddItem "SUS304"
 
-    ComboBox4.AddItem "鋁花板"
-    ComboBox4.AddItem "鋁平板"
-    ComboBox4.AddItem "SUS304"
-    ComboBox4.AddItem "其他"
+    ComboBox7.AddItem "0.8"
+    ComboBox7.AddItem "1.0"
+    ComboBox7.AddItem "1.2"
+    ComboBox7.AddItem "1.5"
+    ComboBox7.AddItem "1.6"
+    ComboBox7.AddItem "2.0"
+    ComboBox7.AddItem "3.0"
+
+    ComboBox20.AddItem "0.8"
+    ComboBox20.AddItem "1.0"
+    ComboBox20.AddItem "1.2"
+    ComboBox20.AddItem "1.5"
+    ComboBox20.AddItem "1.6"
+    ComboBox20.AddItem "2.0"
+    ComboBox20.AddItem "3.0"
+
+    ComboBox22.AddItem "0.8"
+    ComboBox22.AddItem "1.0"
+    ComboBox22.AddItem "1.2"
+    ComboBox22.AddItem "1.5"
+    ComboBox22.AddItem "1.6"
+    ComboBox22.AddItem "2.0"
+    ComboBox22.AddItem "3.0"
     
-    ' ComboBox5.AddItem "鋁花板"
-    ' ComboBox5.AddItem "鋁平板"
-    ' ComboBox5.AddItem "白鐵 (SUS)"
-    ' ComboBox5.AddItem "其他"
+    ComboBox18.AddItem "圓孔"
+    ComboBox18.AddItem "橢圓孔"
 
-    ComboBox6.AddItem "22"
+
 End Sub
 
 
