@@ -1025,6 +1025,15 @@ Public Sub outer_side_board(ByVal start2, ByVal comp_length, ByVal comp_width, B
         AddFinCircles p2, tube_num_row, 1, row_dist, stick_dist, d1
     End If
 
+    SelectActiveLayer "尺寸"
+    If num_inner_side_board > 0 Then
+        chordPoint(0) = p2(0) - d1/2/Sqr(2): chordPoint(1) = p2(1) - d1/2/Sqr(2)
+        FarchordPoint(0) = p2(0) + d1/2/Sqr(2): FarchordPoint(1) = p2(1) + d1/2/Sqr(2)
+        Set dim_obj = ThisDrawing.ModelSpace.AddDimDiametric(chordPoint, FarchordPoint, LeaderLength:=5)
+        dim_obj.TextHeight = dim_text_height2
+        dim_obj.ArrowheadSize = arrow_size2
+    End If
+
     ' 穿面
     If tube_hole_type = "橢圓孔" Then
         SelectActiveLayer "鈑金"
@@ -1042,11 +1051,13 @@ Public Sub outer_side_board(ByVal start2, ByVal comp_length, ByVal comp_width, B
     End If
 
     SelectActiveLayer "尺寸"
-    chordPoint(0) = p2(0) - d1/2/Sqr(2): chordPoint(1) = p2(1) - d1/2/Sqr(2)
-    FarchordPoint(0) = p2(0) + d1/2/Sqr(2): FarchordPoint(1) = p2(1) + d1/2/Sqr(2)
-    Set dim_obj = ThisDrawing.ModelSpace.AddDimDiametric(chordPoint, FarchordPoint, LeaderLength:=5)
-    dim_obj.TextHeight = dim_text_height2
-    dim_obj.ArrowheadSize = arrow_size2
+    ' If num_inner_side_board > 0 Then
+    '     chordPoint(0) = p2(0) - d1/2/Sqr(2): chordPoint(1) = p2(1) - d1/2/Sqr(2)
+    '     FarchordPoint(0) = p2(0) + d1/2/Sqr(2): FarchordPoint(1) = p2(1) + d1/2/Sqr(2)
+    '     Set dim_obj = ThisDrawing.ModelSpace.AddDimDiametric(chordPoint, FarchordPoint, LeaderLength:=5)
+    '     dim_obj.TextHeight = dim_text_height2
+    '     dim_obj.ArrowheadSize = arrow_size2
+    ' End If
 
     p2(0) = p1(0): p2(1) = p1(1) + Int(tube_num_stick/2)*stick_dist
     chordPoint(0) = p2(0) - out_sb_out_d/2/Sqr(2): chordPoint(1) = p2(1) - out_sb_out_d/2/Sqr(2)
